@@ -19,6 +19,8 @@ if (isset($_SESSION['UserID'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $baseTitle; ?></title>
     <!-- Tailwind CSS -->
+    <link rel="icon" href="<?php echo $baseUrl; ?>/static/logo.ico" type="image/png">
+    <link rel="shortcut icon" href="<?php echo $baseUrl; ?>/static/logo.ico" type="image/png">
     <link rel="stylesheet" href="<?php echo $baseUrl; ?>dist/output.css">
     <link rel="stylesheet" href="<?php echo $baseUrl; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
     <!-- SweetAlert2 CSS and JS -->
