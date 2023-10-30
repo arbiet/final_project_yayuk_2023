@@ -40,7 +40,7 @@ if (isset($_FILES['profile_image'])) {
       $user_id = $_SESSION['UserID'];
       $profile_url = $new_image_name;
 
-      $update_query = "UPDATE users SET ProfilePictureURL = ? WHERE UserID = ?";
+      $update_query = "UPDATE Users SET ProfilePictureURL = ? WHERE UserID = ?";
       $update_stmt = $conn->prepare($update_query);
       $update_stmt->bind_param('si', $profile_url, $user_id);
 
