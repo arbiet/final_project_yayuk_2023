@@ -123,7 +123,7 @@ $conn->close();
                             <span class="block sm:inline"><?php echo $_SESSION['success']; ?></span>
                         </div>
                     <?php endif; ?>
-                    <form action="login.php" method="POST" class="mb-6">
+                    <form action="" method="POST" class="mb-6">
                         <label for="username" class="block text-left text-gray-600 mb-2">Username</label>
                         <input type="text" id="username" name="username" class="border border-gray-300 rounded-full px-4 py-2 w-full mb-2" required>
                         <?php if (isset($errors['username'])) : ?>

@@ -1,26 +1,26 @@
 <?php
-$host = 'localhost'; // Ganti dengan host MySQL Anda
-$username = 'root'; // Ganti dengan username MySQL Anda
-$password = ''; // Ganti dengan password MySQL Anda
-$database = 'final_project_yayuk_2023'; // Ganti dengan nama database Anda
+// $host = 'localhost'; // Ganti dengan host MySQL Anda
+// $username = 'root'; // Ganti dengan username MySQL Anda
+// $password = ''; // Ganti dengan password MySQL Anda
+// $database = 'final_project_yayuk_2023'; // Ganti dengan nama database Anda
 
-// Membuat koneksi
-$conn = new mysqli($host, $username, $password, $database);
+// // Membuat koneksi
+// $conn = new mysqli($host, $username, $password, $database);
 
-// Memeriksa koneksi
-if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
-}
+// // Memeriksa koneksi
+// if ($conn->connect_error) {
+//     die("Koneksi gagal: " . $conn->connect_error);
+// }
 
-// Base URL Configuration
-$baseUrl = "http://localhost/final_project_yayuk_2023/";
+// // Base URL Configuration
+// $baseUrl = "http://localhost/final_project_yayuk_2023/";
 
-// base Title and description
-$baseTitle = "O'Ayam Geprek";
-$baseDescription = "O'Ayam Geprek - Mantul banget";
+// // base Title and description
+// $baseTitle = "O'Ayam Geprek";
+// $baseDescription = "O'Ayam Geprek - Mantul banget";
 
-// Base Logo
-$baseLogoUrl = "http://localhost/final_project_yayuk_2023/static/logo.png";
+// // Base Logo
+// $baseLogoUrl = "http://localhost/final_project_yayuk_2023/static/logo.png";
 
 function insertLogActivity($conn, $userID, $activityDescription)
 {
@@ -47,19 +47,29 @@ function generateRandomUserID()
 
     return $randomUserID;
 }
+$hostname = "localhost";
+$db_username = "ikiz5613_admin_yayuk";
+$db_password = "yongalah";
+$db_name = "ikiz5613_final_project_yayuk_2023";
 
-// $hostname = "localhost";
-// $db_username = "ikiz5613_skripsi_aziz";
-// $db_password = "yongalah";
-// $db_name = "ikiz5613_skripsi-aziz";
+// Membuat koneksi
+$conn = new mysqli($hostname, $db_username, $db_password, $db_name);
 
-// // Membuat koneksi
-// $conn = new mysqli($hostname, $db_username, $db_password, $db_name);
+// Memeriksa koneksi
+if ($conn->connect_error) {
+    die("Koneksi gagal: " . $conn->connect_error);
+}
 
-// // Memeriksa koneksi
-// if ($conn->connect_error) {
-//     die("Koneksi gagal: " . $conn->connect_error);
-// }
+// Base URL Configuration
+$baseUrl = "https://yayukyuningsih.arbiet.my.id/";
 
-// // Base URL Configuration
-// $baseUrl = "https://asadulaziz.arbiet.my.id/";
+// base Title and description
+$baseTitle = "O'Ayam Geprek";
+$baseDescription = "O'Ayam Geprek - Mantul banget";
+
+// Base Logo
+$baseLogoUrl = "https://yayukyuningsih.arbiet.my.id/static/logo.png";
+
+
+
+
