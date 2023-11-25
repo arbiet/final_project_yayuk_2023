@@ -9,9 +9,13 @@ $username = $password = '';
 $errors = array();
 
 // Check if the user is already logged in
-if (isset($_SESSION['UserID'])) {
+if (isset($_SESSION['UserID']) && $_SESSION['RoleID'] == 1) {
     // If user is already logged in, redirect to dashboard
-    header('Location: systems/dashboard.php');
+    header('Location: dashboard.php');
+    exit();
+} elseif (isset($_SESSION['UserID']) && $_SESSION['RoleID'] == 2) {
+    // If user is already logged in, redirect to dashboard
+    header('Location: dashboard_manager.php');
     exit();
 }
 
@@ -61,7 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $updateLastLoginStmt->execute();
             $updateLastLoginStmt->close();
 
-            // Trigger a SweetAlert for successful login
+            // Determine the dashboard based on the user's role
+            $dashboardPage = ($_SESSION['RoleID'] === '1') ? 'dashboard.php' : 'dashboard_manager.php';
+
+            // Redirect the user to the appropriate dashboard
             echo '<script>
                 Swal.fire({
                     icon: "success",
@@ -70,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     showConfirmButton: false,
                     timer: 1500
                 }).then(function(){
-                    window.location.href = "../systems/dashboard.php";
+                    window.location.href = "' . $dashboardPage . '";
                 });
             </script>';
             exit();
@@ -98,18 +105,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $conn->close();
 ?>
 
-<!-- Main Content Height Menyesuaikan Hasil Kurang dari Header dan Footer -->
+
 <div class="h-screen flex flex-col">
     <!-- Top Navbar -->
-    <?php include('../components/navbar.php'); ?>
     <!-- End Top Navbar -->
     <!-- Main Content -->
     <main class="flex-grow bg-gray-50 flex flex-col">
         <!-- Login Form -->
         <div class="flex-grow bg-gray-50">
             <div class="flex justify-center items-center h-full">
-                <div class="text-center px-40">
-                    <h1 class="text-6xl font-bold text-gray-700 mb-10">Login</h1>
+                <div class="text-center p-10 border shadow-md">
+                    <div class="flex items-center flex-shrink-0  text-gray-700 m-6 justify-center">
+                        <a href="<?php echo $baseUrl; ?>public/index.php" class="flex items-center space-x-2">
+                            <img src="<?php echo $baseLogoUrl; ?>" alt="Logo" class="w-20" /> <!-- Tambahkan kelas w-40 di sini -->
+                        </a>
+                    </div>
+                    <h1 class="text-4xl font-bold text-gray-700 mb-10">Login</h1>
                     <?php if (isset($errors['login_failed'])) : ?>
                         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
                             <strong class="font-bold">Login failed!</strong>
@@ -144,11 +155,9 @@ $conn->close();
             </div>
         </div>
         <!-- End Login Form -->
-
     </main>
     <!-- End Main Content -->
     <!-- Footer -->
-    <?php include('../components/footer.php'); ?>
     <!-- End Footer -->
 </div>
 <!-- End Main Content -->

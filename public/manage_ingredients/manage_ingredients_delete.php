@@ -2,61 +2,62 @@
 session_start();
 require_once('../../database/connection.php');
 include_once('../components/header.php');
-// Cek apakah user sudah login
+
+// Check if the user is logged in
 if (!isset($_SESSION['UserID'])) {
     header('Location: login.php');
     exit();
 }
 
-// Cek apakah ID pengguna (user) disediakan dalam parameter query
+// Check if the ingredient ID is provided in the query parameters
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    // Redirect ke halaman error atau lokasi yang sesuai
+    // Redirect to the error page or an appropriate location
     header('Location: error.php');
     exit();
 }
 
 $id = $_GET['id'];
 
-// Inisialisasi pesan sukses dan pesan error
+// Initialize success and error messages
 $success_message = '';
 $error_message = '';
 
-// Lakukan penghapusan catatan terkait dari tabel "logactivity"
+// Delete related records from the "logactivity" table
 $query = "DELETE FROM LogActivities WHERE UserID = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param('i', $id);
 
 if ($stmt->execute()) {
-    // Penghapusan catatan terkait berhasil
+    // Deletion of related records successful
     $stmt->close();
 
-    // Sekarang, kita bisa melanjutkan dengan menghapus pengguna
-    $query = "DELETE FROM Users WHERE UserID = ?";
+    // Now, proceed with deleting the ingredient
+    $query = "DELETE FROM Ingredients WHERE id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param('i', $id);
 
     if ($stmt->execute()) {
-        // Deskripsi aktivitas
-        $activityDescription = "User with UserID: $id has been deleted.";
+        // Activity description
+        $activityDescription = "Ingredient with ID: $id has been deleted.";
 
         $currentUserID = $_SESSION['UserID'];
         insertLogActivity($conn, $currentUserID, $activityDescription);
 
-        // Penghapusan pengguna berhasil
+        // Ingredient deletion successful
         $stmt->close();
-        $success_message = "Pengguna berhasil dihapus!";
+        $success_message = "Bahan berhasil dihapus!";
     } else {
-        // Penghapusan pengguna gagal
+        // Ingredient deletion failed
         $stmt->close();
-        $error_message = "Gagal menghapus pengguna.";
+        $error_message = "Gagal menghapus bahan.";
     }
 } else {
-    // Penghapusan catatan terkait gagal
+    // Deletion of related records failed
     $stmt->close();
     $error_message = "Gagal menghapus catatan terkait dari logactivity.";
 }
 
-// Tampilkan pesan sukses atau pesan error dengan SweetAlert2
+// Display success or error message using SweetAlert2
 if (!empty($success_message)) {
     echo "<script>
     Swal.fire({
@@ -66,7 +67,7 @@ if (!empty($success_message)) {
         showConfirmButton: false,
         timer: 1500
     }).then(function() {
-        window.location.href = 'manage_users_list.php'; // Redirect ke halaman daftar pengguna
+        window.location.href = 'manage_ingredients_list.php'; // Redirect to the ingredient list page
     });
     </script>";
 } elseif (!empty($error_message)) {
@@ -78,7 +79,7 @@ if (!empty($success_message)) {
         showConfirmButton: false,
         timer: 1500
     }).then(function() {
-        window.location.href = 'manage_users_list.php'; // Redirect ke halaman daftar pengguna
+        window.location.href = 'manage_ingredients_list.php'; // Redirect to the ingredient list page
     });
     </script>";
 }

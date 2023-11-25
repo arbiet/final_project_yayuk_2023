@@ -5,31 +5,25 @@ session_start();
 require_once('../../database/connection.php');
 
 // Initialize variables
-$username = $password = '';
-// Initialize variables
-$userID = ''; // Initialize with the specific user's ID you want to display
+$ingredientID = ''; // Initialize with the specific ingredient's ID you want to display
 $errors = array();
-$userData = array();
+$ingredientData = array();
 
-// Retrieve user data
+// Retrieve ingredient data
 if (isset($_GET['id'])) {
-    $userID = $_GET['id'];
-    $query = "SELECT u.UserID, u.Username, u.Email, r.RoleName, u.DateOfBirth, u.Gender, u.Address, u.PhoneNumber, u.RoleID, u.AccountCreationDate, u.LastLogin, u.AccountStatus, u.ActivationStatus
-              FROM Users u
-              LEFT JOIN Roles r ON u.RoleID = r.RoleID
-              WHERE u.UserID = $userID";
+    $ingredientID = $_GET['id'];
+    $query = "SELECT * FROM Ingredients WHERE id = $ingredientID";
     $result = $conn->query($query);
 
     if ($result->num_rows > 0) {
-        $userData = $result->fetch_assoc();
+        $ingredientData = $result->fetch_assoc();
     } else {
-        $errors[] = "User not found.";
+        $errors[] = "Ingredient not found.";
     }
 }
 
 ?>
 <?php include_once('../components/header.php'); ?>
-
 <div class="h-screen flex flex-col">
     <!-- Top Navbar -->
     <?php include('../components/navbar.php'); ?>
@@ -43,9 +37,9 @@ if (isset($_GET['id'])) {
             <div class="flex items-start justify-start p-6 shadow-md m-4 flex-1 flex-col">
                 <!-- Header Content -->
                 <div class="flex flex-row justify-between items-center w-full border-b-2 border-gray-600 mb-2 pb-2">
-                    <h1 class="text-3xl text-gray-800 font-semibold w-full">User Details</h1>
+                    <h1 class="text-3xl text-gray-800 font-semibold w-full">Ingredient Details</h1>
                     <div class="flex flex-row justify-end items-center">
-                        <a href="../manage_users/manage_users_list.php" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded inline-flex items-center space-x-2">
+                        <a href="../manage_ingredients/manage_ingredients_list.php" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded inline-flex items-center space-x-2">
                             <i class="fas fa-arrow-left"></i>
                             <span>Back</span>
                         </a>
@@ -58,44 +52,49 @@ if (isset($_GET['id'])) {
                     <div class="flex flex-row justify-between items-center w-full mb-2 pb-2">
                         <div>
                             <h2 class="text-lg text-gray-800 font-semibold">Welcome back, <?php echo $_SESSION['FullName']; ?>!</h2>
-                            <p class="text-gray-600 text-sm">User information.</p>
+                            <p class="text-gray-600 text-sm">Ingredient information.</p>
                         </div>
                     </div>
                     <!-- End Navigation -->
-                    <!-- User Details -->
-                    <?php if (!empty($userData)) : ?>
+                    <!-- Ingredient Details -->
+                    <?php if (!empty($ingredientData)) : ?>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="bg-white shadow-md p-4 rounded-md">
-                                <h3 class="text-lg font-semibold text-gray-800">User Information</h3>
-                                <p><strong>Username:</strong> <?php echo $userData['Username']; ?></p>
-                                <p><strong>Email:</strong> <?php echo $userData['Email']; ?></p>
-                                <p><strong>Role:</strong> <?php echo $userData['RoleName']; ?></p>
-                                <p><strong>Date of Birth:</strong> <?php echo $userData['DateOfBirth']; ?></p>
-                                <p><strong>Gender:</strong> <?php echo $userData['Gender']; ?></p>
+                                <h3 class="text-lg font-semibold text-gray-800">Ingredient Information</h3>
+                                <p><strong>Ingredient Name:</strong> <?php echo $ingredientData['ingredient_name']; ?></p>
+                                <p><strong>Purchase Price:</strong> <?php echo $ingredientData['purchase_price']; ?></p>
+                                <p><strong>Quantity per Purchase:</strong> <?php echo $ingredientData['quantity_per_purchase']; ?></p>
+                                <p><strong>Servings per Ingredient:</strong> <?php echo $ingredientData['servings_per_ingredient']; ?></p>
+                                <p><strong>Holding Cost:</strong> <?php echo $ingredientData['holding_cost'] ? 'Yes' : 'No'; ?></p>
+                                <p><strong>Holding Cost Price:</strong> <?php echo $ingredientData['holding_cost_price']; ?></p>
                             </div>
                             <div class="bg-white shadow-md p-4 rounded-md">
-                                <h3 class="text-lg font-semibold text-gray-800">Contact Information</h3>
-                                <p><strong>Address:</strong> <?php echo $userData['Address']; ?></p>
-                                <p><strong>Phone Number:</strong> <?php echo $userData['PhoneNumber']; ?></p>
+                                <h3 class="text-lg font-semibold text-gray-800">Additional Information</h3>
+                                <p><strong>Shelf Life:</strong> <?php echo $ingredientData['shelf_life']; ?></p>
+                                <p><strong>Supplier Name:</strong> <?php echo $ingredientData['supplier_name']; ?></p>
+                                <p><strong>Description:</strong> <?php echo $ingredientData['description']; ?></p>
+                                <p><strong>Minimum Stock:</strong> <?php echo $ingredientData['minimum_stock']; ?></p>
+                                <p><strong>Storage Location:</strong> <?php echo $ingredientData['storage_location']; ?></p>
+                                <p><strong>Purchase Unit:</strong> <?php echo $ingredientData['purchase_unit']; ?></p>
                             </div>
                         </div>
                         <!-- Add Edit and Delete Buttons -->
                         <div class="mt-4">
-                            <a href="manage_users_update.php?id=<?php echo $userID; ?>" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mr-2">
+                            <a href="manage_ingredients_update.php?id=<?php echo $ingredientID; ?>" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mr-2">
                                 <i class="fas fa-edit mr-2"></i>
                                 <span>Edit</span>
                             </a>
-                            <a href="#" onclick="confirmDelete(<?php echo $userID; ?>)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                            <a href="#" onclick="confirmDelete(<?php echo $ingredientID; ?>)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                                 <i class="fas fa-trash mr-2"></i>
                                 <span>Delete</span>
                             </a>
                         </div>
                     <?php else : ?>
                         <div class="bg-white shadow-md p-4 rounded-md">
-                            <p>No user data available.</p>
+                            <p>No ingredient data available.</p>
                         </div>
                     <?php endif; ?>
-                    <!-- End User Details -->
+                    <!-- End Ingredient Details -->
                 </div>
                 <!-- End Content -->
             </div>
@@ -110,7 +109,7 @@ if (isset($_GET['id'])) {
 
 <script>
     // Function to show a confirmation dialog
-    function confirmDelete(userID) {
+    function confirmDelete(ingredientID) {
         Swal.fire({
             title: 'Are you sure?',
             text: 'You won\'t be able to revert this!',
@@ -121,7 +120,7 @@ if (isset($_GET['id'])) {
         }).then((result) => {
             if (result.isConfirmed) {
                 // If the user confirms, redirect to the delete page
-                window.location.href = `manage_users_delete.php?id=${userID}`;
+                window.location.href = `manage_ingredients_delete.php?id=${ingredientID}`;
             }
         });
     }

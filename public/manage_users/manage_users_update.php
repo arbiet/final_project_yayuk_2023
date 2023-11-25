@@ -95,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 
-<!-- Main Content Height Menyesuaikan Hasil Kurang dari Header dan Footer -->
+
 <div class="h-screen flex flex-col">
     <!-- Top Navbar -->
     <?php include('../components/navbar.php'); ?>
@@ -181,7 +181,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         function getRoles($conn)
                         {
                             $roles = array();
-                            $query = "SELECT RoleID, RoleName FROM Role";
+                            $query = "SELECT RoleID, RoleName FROM Roles";
                             $result = $conn->query($query);
 
                             if (

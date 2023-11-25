@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Generate User ID and check if it already exists in the database
         $user_id = generateRandomUserID();
 
-        $query = "SELECT * FROM users WHERE UserID = ? LIMIT 1";
+        $query = "SELECT * FROM Users WHERE UserID = ? LIMIT 1";
         $stmt = $conn->prepare($query);
         $stmt->bind_param('s', $user_id);
         $stmt->execute();
@@ -110,7 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // Close the database connection
 ?>
 
-<!-- Main Content Height Menyesuaikan Hasil Kurang dari Header dan Footer -->
+
 <div class="h-screen flex flex-col">
     <!-- Top Navbar -->
     <?php include('../components/navbar.php'); ?>
@@ -205,7 +205,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         function getRoles($conn)
                         {
                             $roles = array();
-                            $query = "SELECT RoleID, RoleName FROM Role";
+                            $query = "SELECT RoleID, RoleName FROM Roles";
                             $result = $conn->query($query);
 
                             if (
@@ -292,24 +292,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- End Footer -->
 </div>
 <!-- End Main Content -->
-<script>
-    // Function to show a confirmation dialog
-    function confirmDelete(userID) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'You won\'t be able to revert this!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // If the user confirms, redirect to the delete page
-                window.location.href = `UserDelete.php?id=${userID}`;
-            }
-        });
-    }
-</script>
 </body>
 
 </html>
