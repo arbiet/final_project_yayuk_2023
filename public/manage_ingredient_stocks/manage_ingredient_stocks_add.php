@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Sanitize and validate input data
     $ingredient_id = mysqli_real_escape_string($conn, $_POST['ingredient_id']);
     $quantity = mysqli_real_escape_string($conn, $_POST['quantity']);
-    $transaction_type = 'add';
+    $transaction_type = 'in';
 
     // Check for errors
     if (empty($ingredient_id)) {
@@ -37,32 +37,68 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $existing_stock_stmt->bind_param("s", $ingredient_id);
         $existing_stock_stmt->execute();
         $existing_stock_result = $existing_stock_stmt->get_result();
-
         if ($existing_stock_result->num_rows > 0) {
             // Existing IngredientStocks entry
             $existing_stock_row = $existing_stock_result->fetch_assoc();
             $old_quantity = $existing_stock_row['Quantity'];
+            $old_quantityperservings = $existing_stock_row['QuantityPerServings'];
 
-            // Calculate new quantity
-            $new_quantity = $old_quantity + ($quantity * $existing_stock_row['QuantityPerPurchase'] * $existing_stock_row['ServingsPerIngredient']);
+            // Fetch QuantityPerPurchase and ServingsPerIngredient from Ingredients table
+            $ingredient_info_query = "SELECT QuantityPerPurchase, ServingsPerIngredient FROM Ingredients WHERE IngredientID = ?";
+            $ingredient_info_stmt = $conn->prepare($ingredient_info_query);
+            $ingredient_info_stmt->bind_param("s", $ingredient_id);
+            $ingredient_info_stmt->execute();
+
+            // Store the result set for later use
+            $ingredient_info_result = $ingredient_info_stmt->get_result();
+            $ingredient_info_row = $ingredient_info_result->fetch_assoc();
+
+            // Calculate new quantity using values from Ingredients table
+            $quantityperservings = $old_quantityperservings + ($quantity * $ingredient_info_row['QuantityPerPurchase'] * $ingredient_info_row['ServingsPerIngredient']);
+            $quantity = $old_quantity + $quantity;
+
 
             // Update existing IngredientStocks entry
-            $update_stock_query = "UPDATE IngredientStocks SET Quantity = ? WHERE IngredientID = ?";
+            $update_stock_query = "UPDATE IngredientStocks SET Quantity = ?, QuantityPerServings = ? WHERE IngredientID = ?";
             $update_stock_stmt = $conn->prepare($update_stock_query);
-            $update_stock_stmt->bind_param("ds", $new_quantity, $ingredient_id);
+            $update_stock_stmt->bind_param("dds", $new_quantity, $new_quantityperservings, $ingredient_id);
             $update_stock_stmt->execute();
+
+            // Close the statement
+            $update_stock_stmt->close();
         } else {
-            // Insert new IngredientStocks entry
-            $insert_stock_query = "INSERT INTO IngredientStocks (IngredientID, Quantity, LastUpdateStock) VALUES (?, ?, NOW())";
-            $insert_stock_stmt = $conn->prepare($insert_stock_query);
-            $insert_stock_stmt->bind_param("sd", $ingredient_id, $quantity);
-            $insert_stock_stmt->execute();
+            $existing_ingredient_query = "SELECT * FROM Ingredients WHERE IngredientID = ?";
+            $existing_ingredient_stmt = $conn->prepare($existing_ingredient_query);
+            $existing_ingredient_stmt->bind_param("s", $ingredient_id);
+            $existing_ingredient_stmt->execute();
+
+            // Store the result set for later use
+            $existing_ingredient_result = $existing_ingredient_stmt->get_result();
+
+            if ($existing_ingredient_result->num_rows > 0) {
+                $existing_ingredient_row = $existing_ingredient_result->fetch_assoc();
+
+                $quantityperservings = ($quantity * $existing_ingredient_row['QuantityPerPurchase'] * $existing_ingredient_row['ServingsPerIngredient']);
+                $quantity = $quantity;
+
+                // Insert new IngredientStocks entry
+                $insert_stock_query = "INSERT INTO IngredientStocks (IngredientID, Quantity, QuantityPerServings, LastUpdateStock) VALUES (?, ?, ?, NOW())";
+                $insert_stock_stmt = $conn->prepare($insert_stock_query);
+                $insert_stock_stmt->bind_param("sdd", $ingredient_id, $quantity, $quantityperservings);
+                $insert_stock_stmt->execute();
+
+                // Close the statement
+                $insert_stock_stmt->close();
+            }
+
+            // Close the statement
+            $existing_ingredient_stmt->close();
         }
 
         // Insert entry into IngredientTransactions
-        $insert_transaction_query = "INSERT INTO IngredientTransactions (IngredientID, TransactionType, Quantity, Timestamp) VALUES (?, ?, ?, NOW())";
+        $insert_transaction_query = "INSERT INTO IngredientTransactions (IngredientID, TransactionType, Quantity, QuantityPerServings, Timestamp) VALUES (?, ?, ?, ?, NOW())";
         $insert_transaction_stmt = $conn->prepare($insert_transaction_query);
-        $insert_transaction_stmt->bind_param("ssd", $ingredient_id, $transaction_type, $quantity);
+        $insert_transaction_stmt->bind_param("ssdd", $ingredient_id, $transaction_type, $quantity, $quantityperservings);
         $insert_transaction_stmt->execute();
 
         // Display success message and redirect

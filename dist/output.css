@@ -685,10 +685,6 @@ video {
   height: 100vh;
 }
 
-.max-h-32 {
-  max-height: 8rem;
-}
-
 .w-12 {
   width: 3rem;
 }
@@ -705,6 +701,10 @@ video {
   width: 10rem;
 }
 
+.w-52 {
+  width: 13rem;
+}
+
 .w-64 {
   width: 16rem;
 }
@@ -717,20 +717,8 @@ video {
   width: 100%;
 }
 
-.w-52 {
-  width: 13rem;
-}
-
 .min-w-full {
   min-width: 100%;
-}
-
-.max-w-full {
-  max-width: 100%;
-}
-
-.max-w-4xl {
-  max-width: 56rem;
 }
 
 .flex-1 {

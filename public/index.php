@@ -38,6 +38,11 @@ if (isset($_SESSION['UserID'])) {
         <main class="flex-grow bg-gray-50">
             <div class=" flex justify-center items-center h-full">
                 <div class="text-center px-40">
+                    <div class="flex items-center flex-shrink-0  text-gray-700 m-6 justify-center">
+                        <a href="<?php echo $baseUrl; ?>public/index.php" class="flex items-center space-x-2">
+                            <img src="<?php echo $baseLogoUrl; ?>" alt="Logo" class="w-20" /> <!-- Tambahkan kelas w-40 di sini -->
+                        </a>
+                    </div>
                     <h1 class="text-6xl font-bold text-gray-700 mb-10"><?php echo $baseTitle; ?></h1>
                     <p class="text-gray-500 mb-10 text-xl"><?php echo $baseDescription; ?></p>
                     <a href="<?php echo $baseUrl; ?>public/systems/login.php" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">

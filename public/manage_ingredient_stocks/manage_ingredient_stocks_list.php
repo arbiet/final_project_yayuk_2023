@@ -60,6 +60,7 @@ $errors = array();
                                 <th class="text-left py-2">No</th>
                                 <th class="text-left py-2">Ingredient Name</th>
                                 <th class="text-left py-2">Quantity</th>
+                                <th class="text-left py-2">Quantity Per Servings</th>
                                 <th class="text-left py-2">Last Update</th>
                                 <th class="text-left py-2">Action</th>
                             </tr>
@@ -69,7 +70,7 @@ $errors = array();
                             // Fetch ingredient stock data from the database
                             $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
                             $page = isset($_GET['page']) ? $_GET['page'] : 1;
-                            $query = "SELECT IngStk.StockID, IngStk.IngredientID, IngStk.Quantity, IngStk.LastUpdateStock, I.IngredientName
+                            $query = "SELECT IngStk.StockID, IngStk.IngredientID, IngStk.Quantity, IngStk.QuantityPerServings, IngStk.LastUpdateStock, I.IngredientName
                                 FROM IngredientStocks IngStk
                                 INNER JOIN Ingredients I ON IngStk.IngredientID = I.IngredientID
                                 WHERE I.IngredientName LIKE '%$searchTerm%'
@@ -93,6 +94,7 @@ $errors = array();
                                     <td class="py-2"><?php echo $no++; ?></td>
                                     <td class="py-2"><?php echo $row['IngredientName']; ?></td>
                                     <td class="py-2"><?php echo $row['Quantity']; ?></td>
+                                    <td class="py-2"><?php echo $row['QuantityPerServings']; ?></td>
                                     <td class="py-2"><?php echo $row['LastUpdateStock']; ?></td>
                                     <td class='py-2'>
                                         <a href="<?php echo $baseUrl; ?>public/manage_ingredient_stocks/in.php?id=<?php echo $row['StockID']; ?>" class='bg-blue-500 hover-bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mr-2 text-sm'>
