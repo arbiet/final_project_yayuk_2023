@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 28, 2023 at 01:42 AM
+-- Generation Time: Nov 28, 2023 at 03:43 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -78,8 +78,16 @@ CREATE TABLE `IngredientStocks` (
   `StockID` int(11) NOT NULL,
   `IngredientID` int(11) NOT NULL,
   `Quantity` decimal(10,2) NOT NULL,
+  `QuantityPerServings` decimal(10,2) NOT NULL,
   `LastUpdateStock` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `IngredientStocks`
+--
+
+INSERT INTO `IngredientStocks` (`StockID`, `IngredientID`, `Quantity`, `QuantityPerServings`, `LastUpdateStock`) VALUES
+(6, 1, 1.00, 100.00, '2023-11-28 11:57:03');
 
 -- --------------------------------------------------------
 
@@ -92,8 +100,16 @@ CREATE TABLE `IngredientTransactions` (
   `IngredientID` int(11) NOT NULL,
   `TransactionType` enum('In','Out') NOT NULL,
   `Quantity` decimal(10,2) NOT NULL,
+  `QuantityPerServings` decimal(10,2) NOT NULL,
   `Timestamp` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `IngredientTransactions`
+--
+
+INSERT INTO `IngredientTransactions` (`TransactionID`, `IngredientID`, `TransactionType`, `Quantity`, `QuantityPerServings`, `Timestamp`) VALUES
+(6, 1, 'In', 1.00, 100.00, '2023-11-28 11:57:03');
 
 -- --------------------------------------------------------
 
@@ -156,7 +172,10 @@ INSERT INTO `LogActivities` (`LogID`, `UserID`, `ActivityDescription`, `Activity
 (41, 137648118, 'User logged out', '2023-11-25 19:17:12'),
 (42, 137648118, 'User logged in', '2023-11-25 19:17:18'),
 (43, 137648118, 'User logged out', '2023-11-25 19:19:35'),
-(44, 137648118, 'User logged in', '2023-11-25 19:19:40');
+(44, 137648118, 'User logged in', '2023-11-25 19:19:40'),
+(45, 137648118, 'User logged in', '2023-11-28 11:17:01'),
+(46, 0, 'User logged out', '2023-11-28 12:31:46'),
+(47, 137648118, 'User logged in', '2023-11-28 12:31:58');
 
 -- --------------------------------------------------------
 
@@ -322,7 +341,7 @@ CREATE TABLE `Users` (
 
 INSERT INTO `Users` (`UserID`, `Username`, `Password`, `Email`, `FullName`, `DateOfBirth`, `Gender`, `Address`, `PhoneNumber`, `RoleID`, `AccountCreationDate`, `LastLogin`, `AccountStatus`, `ProfilePictureURL`, `ActivationStatus`) VALUES
 (0, 'ikimukti', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', '19103020046@unpkediri.ac.id', 'Firmansyah Mukti Wijaya', '2023-10-12', 'Male', 'Nglaban 1111', '081216318022', 2, '2023-11-25 12:09:14', '2023-10-29 20:04:55', NULL, '653e5a409b4fb.jpeg', NULL),
-(137648118, 'admin', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'admin@ikimukti.com', 'Administrator', NULL, NULL, NULL, NULL, 1, '2023-11-25 19:19:40', '2023-11-26 02:19:40', NULL, '6562102a33af3.png', NULL);
+(137648118, 'admin', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'admin@ikimukti.com', 'Administrator', NULL, NULL, NULL, NULL, 1, '2023-11-28 12:31:58', '2023-11-28 19:31:58', NULL, '6562102a33af3.png', NULL);
 
 --
 -- Indexes for dumped tables
@@ -406,19 +425,19 @@ ALTER TABLE `Ingredients`
 -- AUTO_INCREMENT for table `IngredientStocks`
 --
 ALTER TABLE `IngredientStocks`
-  MODIFY `StockID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `StockID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `IngredientTransactions`
 --
 ALTER TABLE `IngredientTransactions`
-  MODIFY `TransactionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `TransactionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `LogActivities`
 --
 ALTER TABLE `LogActivities`
-  MODIFY `LogID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `LogID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `ProductIngredients`
