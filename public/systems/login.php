@@ -66,8 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $updateLastLoginStmt->close();
 
             // Determine the dashboard based on the user's role
-            $dashboardPage = ($_SESSION['RoleID'] === '1') ? 'dashboard.php' : 'dashboard_manager.php';
-
+            // Check if the user is already logged in
+            if (isset($_SESSION['UserID']) && $_SESSION['RoleID'] == 1) {
+                $dashboardPage = 'dashboard.php';
+            } elseif (
+                isset($_SESSION['UserID']) && $_SESSION['RoleID'] == 2
+            ) {
+                $dashboardPage = 'dashboard_manager.php';
+            }
             // Redirect the user to the appropriate dashboard
             echo '<script>
                 Swal.fire({

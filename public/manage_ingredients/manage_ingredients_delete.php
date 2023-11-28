@@ -32,7 +32,7 @@ if ($stmt->execute()) {
     $stmt->close();
 
     // Now, proceed with deleting the ingredient
-    $query = "DELETE FROM Ingredients WHERE id = ?";
+    $query = "DELETE FROM Ingredients WHERE IngredientID = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param('i', $id);
 

@@ -16,7 +16,7 @@ if (isset($_GET['id'])) {
     $ingredient_id = mysqli_real_escape_string($conn, $_GET['id']);
 
     // Query to fetch the existing ingredient data
-    $query = "SELECT * FROM Ingredients WHERE id = ? LIMIT 1";
+    $query = "SELECT * FROM Ingredients WHERE IngredientID = ? LIMIT 1";
     $stmt = $conn->prepare($query);
     $stmt->bind_param('s', $ingredient_id);
     $stmt->execute();
@@ -28,18 +28,18 @@ if (isset($_GET['id'])) {
         // Ingredient not found, handle accordingly (e.g., redirect to an error page)
     } else {
         // Populate variables with existing ingredient data
-        $ingredient_name = $ingredient['ingredient_name'];
-        $purchase_price = $ingredient['purchase_price'];
-        $quantity_per_purchase = $ingredient['quantity_per_purchase'];
-        $servings_per_ingredient = $ingredient['servings_per_ingredient'];
-        $holding_cost = $ingredient['holding_cost'];
-        $holding_cost_price = $ingredient['holding_cost_price'];
-        $shelf_life = $ingredient['shelf_life'];
-        $supplier_name = $ingredient['supplier_name'];
-        $description = $ingredient['description'];
-        $minimum_stock = $ingredient['minimum_stock'];
-        $storage_location = $ingredient['storage_location'];
-        $purchase_unit = $ingredient['purchase_unit'];
+        $ingredient_name = $ingredient['IngredientName'];
+        $purchase_price = $ingredient['PurchasePrice'];
+        $quantity_per_purchase = $ingredient['QuantityPerPurchase'];
+        $servings_per_ingredient = $ingredient['ServingsPerIngredient'];
+        $holding_cost = $ingredient['HoldingCost'];
+        $holding_cost_price = $ingredient['HoldingCostPrice'];
+        $shelf_life = $ingredient['ShelfLife'];
+        $supplier_name = $ingredient['SupplierName'];
+        $description = $ingredient['Description'];
+        $minimum_stock = $ingredient['MinimumStock'];
+        $storage_location = $ingredient['StorageLocation'];
+        $purchase_unit = $ingredient['PurchaseUnit'];
         // You can also retrieve other fields as needed
     }
 }
@@ -63,10 +63,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Update ingredient data in the database
     $query = "UPDATE Ingredients 
-              SET ingredient_name = ?, purchase_price = ?, quantity_per_purchase = ?, servings_per_ingredient = ?, 
-                  holding_cost = ?, holding_cost_price = ?, shelf_life = ?, supplier_name = ?, description = ?, 
-                  minimum_stock = ?, storage_location = ?, purchase_unit = ? 
-              WHERE id = ?";
+              SET IngredientName = ?, PurchasePrice = ?, QuantityPerPurchase = ?, ServingsPerIngredient = ?, 
+                  HoldingCost = ?, HoldingCostPrice = ?, ShelfLife = ?, SupplierName = ?, Description = ?, 
+                  MinimumStock = ?, StorageLocation = ?, PurchaseUnit = ? 
+              WHERE IngredientID = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param(
         "sdddiidssdsss",

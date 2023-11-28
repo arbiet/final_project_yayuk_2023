@@ -12,7 +12,7 @@ $ingredientData = array();
 // Retrieve ingredient data
 if (isset($_GET['id'])) {
     $ingredientID = $_GET['id'];
-    $query = "SELECT * FROM Ingredients WHERE id = $ingredientID";
+    $query = "SELECT * FROM Ingredients WHERE IngredientID = $ingredientID";
     $result = $conn->query($query);
 
     if ($result->num_rows > 0) {
@@ -61,21 +61,21 @@ if (isset($_GET['id'])) {
                         <div class="grid grid-cols-2 gap-4">
                             <div class="bg-white shadow-md p-4 rounded-md">
                                 <h3 class="text-lg font-semibold text-gray-800">Ingredient Information</h3>
-                                <p><strong>Ingredient Name:</strong> <?php echo $ingredientData['ingredient_name']; ?></p>
-                                <p><strong>Purchase Price:</strong> <?php echo $ingredientData['purchase_price']; ?></p>
-                                <p><strong>Quantity per Purchase:</strong> <?php echo $ingredientData['quantity_per_purchase']; ?></p>
-                                <p><strong>Servings per Ingredient:</strong> <?php echo $ingredientData['servings_per_ingredient']; ?></p>
-                                <p><strong>Holding Cost:</strong> <?php echo $ingredientData['holding_cost'] ? 'Yes' : 'No'; ?></p>
-                                <p><strong>Holding Cost Price:</strong> <?php echo $ingredientData['holding_cost_price']; ?></p>
+                                <p><strong>Ingredient Name:</strong> <?php echo $ingredientData['IngredientName']; ?></p>
+                                <p><strong>Purchase Price:</strong> <?php echo $ingredientData['PurchasePrice']; ?></p>
+                                <p><strong>Quantity per Purchase:</strong> <?php echo $ingredientData['QuantityPerPurchase']; ?></p>
+                                <p><strong>Servings per Ingredient:</strong> <?php echo $ingredientData['ServingsPerIngredient']; ?></p>
+                                <p><strong>Holding Cost:</strong> <?php echo $ingredientData['HoldingCost'] ? 'Yes' : 'No'; ?></p>
+                                <p><strong>Holding Cost Price:</strong> <?php echo $ingredientData['HoldingCostPrice']; ?></p>
                             </div>
                             <div class="bg-white shadow-md p-4 rounded-md">
                                 <h3 class="text-lg font-semibold text-gray-800">Additional Information</h3>
-                                <p><strong>Shelf Life:</strong> <?php echo $ingredientData['shelf_life']; ?></p>
-                                <p><strong>Supplier Name:</strong> <?php echo $ingredientData['supplier_name']; ?></p>
-                                <p><strong>Description:</strong> <?php echo $ingredientData['description']; ?></p>
-                                <p><strong>Minimum Stock:</strong> <?php echo $ingredientData['minimum_stock']; ?></p>
-                                <p><strong>Storage Location:</strong> <?php echo $ingredientData['storage_location']; ?></p>
-                                <p><strong>Purchase Unit:</strong> <?php echo $ingredientData['purchase_unit']; ?></p>
+                                <p><strong>Shelf Life:</strong> <?php echo $ingredientData['ShelfLife']; ?></p>
+                                <p><strong>Supplier Name:</strong> <?php echo $ingredientData['SupplierName']; ?></p>
+                                <p><strong>Description:</strong> <?php echo $ingredientData['Description']; ?></p>
+                                <p><strong>Minimum Stock:</strong> <?php echo $ingredientData['MinimumStock']; ?></p>
+                                <p><strong>Storage Location:</strong> <?php echo $ingredientData['StorageLocation']; ?></p>
+                                <p><strong>Purchase Unit:</strong> <?php echo $ingredientData['PurchaseUnit']; ?></p>
                             </div>
                         </div>
                         <!-- Add Edit and Delete Buttons -->

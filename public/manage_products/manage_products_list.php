@@ -58,21 +58,21 @@ $errors = array();
                         // Fetch product data from the database
                         $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
                         $page = isset($_GET['page']) ? $_GET['page'] : 1;
-                        $query = "SELECT p.*, GROUP_CONCAT(i.ingredient_name, ': ', pi.quantity) AS ingredients_list
+                        $query = "SELECT p.*, GROUP_CONCAT(i.IngredientName, ': ', pi.Quantity) AS Ingredients_List
                                   FROM Products p
-                                  LEFT JOIN ProductIngredients pi ON p.id = pi.product_id
-                                  LEFT JOIN Ingredients i ON pi.ingredient_id = i.id
-                                  WHERE p.product_name LIKE '%$searchTerm%'
-                                  GROUP BY p.id
+                                  LEFT JOIN ProductIngredients pi ON p.ProductID = pi.ProductID
+                                  LEFT JOIN Ingredients i ON pi.IngredientID = i.IngredientID
+                                  WHERE p.ProductName LIKE '%$searchTerm%'
+                                  GROUP BY p.ProductID
                                   LIMIT 15 OFFSET " . ($page - 1) * 15;
                         $result = $conn->query($query);
 
                         // Count total rows in the table
-                        $queryCount = "SELECT COUNT(DISTINCT p.id) AS count
+                        $queryCount = "SELECT COUNT(DISTINCT p.ProductID) AS count
                                        FROM Products p
-                                       LEFT JOIN ProductIngredients pi ON p.id = pi.product_id
-                                       LEFT JOIN Ingredients i ON pi.ingredient_id = i.id
-                                       WHERE p.product_name LIKE '%$searchTerm%'";
+                                       LEFT JOIN ProductIngredients pi ON p.ProductID = pi.ProductID
+                                       LEFT JOIN Ingredients i ON pi.IngredientID = i.IngredientID
+                                       WHERE p.ProductName LIKE '%$searchTerm%'";
                         $resultCount = $conn->query($queryCount);
                         $rowCount = $resultCount->fetch_assoc()['count'];
                         $totalPage = ceil($rowCount / 15);
@@ -84,32 +84,32 @@ $errors = array();
                             <div class="border-b-2 border-gray-300 p-4 mb-4">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <h3 class="text-xl text-gray-800 font-semibold"><?php echo $row['product_name']; ?></h3>
-                                        <p class="text-gray-600">Manufacturer: <?php echo $row['manufacturer']; ?></p>
+                                        <h3 class="text-xl text-gray-800 font-semibold"><?php echo $row['ProductName']; ?></h3>
+                                        <p class="text-gray-600">Manufacturer: <?php echo $row['Manufacturer']; ?></p>
                                     </div>
                                     <div>
                                         <!-- Display Product Photo -->
-                                        <img src="../static/image/product/<?php echo $row['photo_url']; ?>" alt="<?php echo $row['product_name']; ?>" class="w-16 h-16 object-cover rounded">
+                                        <img src="../static/image/product/<?php echo $row['PhotoURL']; ?>" alt="<?php echo $row['ProductName']; ?>" class="w-16 h-16 object-cover rounded">
                                     </div>
                                     <div>
-                                        <a href="<?php echo $baseUrl; ?>public/manage_products/manage_products_detail.php?id=<?php echo $row['id'] ?>" class='bg-green-500 hover-bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mr-2 text-sm'>
+                                        <a href="<?php echo $baseUrl; ?>public/manage_products/manage_products_detail.php?id=<?php echo $row['ProductID'] ?>" class='bg-green-500 hover-bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mr-2 text-sm'>
                                             <i class='fas fa-eye mr-2'></i>
                                             <span>Detail</span>
                                         </a>
-                                        <a href="<?php echo $baseUrl; ?>public/manage_products/manage_products_update.php?id=<?php echo $row['id'] ?>" class='bg-blue-500 hover-bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mr-2 text-sm'>
+                                        <a href="<?php echo $baseUrl; ?>public/manage_products/manage_products_update.php?id=<?php echo $row['ProductID'] ?>" class='bg-blue-500 hover-bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mr-2 text-sm'>
                                             <i class='fas fa-edit mr-2'></i>
                                             <span>Edit</span>
                                         </a>
-                                        <a href="#" onclick="confirmDelete(<?php echo $row['id']; ?>)" class='bg-red-500 hover-bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center text-sm'>
+                                        <a href="#" onclick="confirmDelete(<?php echo $row['ProductID']; ?>)" class='bg-red-500 hover-bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center text-sm'>
                                             <i class='fas fa-trash mr-2'></i>
                                             <span>Delete</span>
                                         </a>
                                     </div>
                                 </div>
                                 <div class="mt-2">
-                                    <p class="text-gray-800">Selling Price (IDR): <?php echo number_format($row['selling_price'], 0, ',', '.'); ?></p>
-                                    <p class="text-gray-800">Weight: <?php echo $row['weight']; ?></p>
-                                    <p class="text-gray-800">Ingredients: <?php echo $row['ingredients_list']; ?></p>
+                                    <p class="text-gray-800">Selling Price (IDR): <?php echo number_format($row['SellingPrice'], 0, ',', '.'); ?></p>
+                                    <p class="text-gray-800">Weight: <?php echo $row['Weight']; ?></p>
+                                    <p class="text-gray-800">Ingredients: <?php echo $row['Ingredients_List']; ?></p>
                                 </div>
                             </div>
                         <?php
@@ -132,11 +132,9 @@ $errors = array();
                         <div class="flex space-x-2">
                             <a href="?page=1&search=<?php echo $searchTerm; ?>" class="bg-gray-200 hover-bg-gray-300 text-gray-600 font-bold py-2 px-4 rounded inline-flex items-center">
                                 <i class="fas fa-angle-double-left"></i>
-                                <span>First</span>
                             </a>
                             <a href="?page=<?php echo $page > 1 ? $page - 1 : 1; ?>&search=<?php echo $searchTerm; ?>" class="bg-gray-200 hover-bg-gray-300 text-gray-600 font-bold py-2 px-4 rounded inline-flex items-center">
                                 <i class="fas fa-angle-left"></i>
-                                <span>Previous</span>
                             </a>
                             <!-- Page number -->
                             <?php
@@ -151,11 +149,9 @@ $errors = array();
                             }
                             ?>
                             <a href="?page=<?php echo $page < $totalPage ? $page + 1 : $totalPage; ?>&search=<?php echo $searchTerm; ?>" class="bg-gray-200 hover-bg-gray-300 text-gray-600 font-bold py-2 px-4 rounded inline-flex items-center">
-                                <span>Next</span>
                                 <i class="fas fa-angle-right"></i>
                             </a>
                             <a href="?page=<?php echo $totalPage; ?>&search=<?php echo $searchTerm; ?>" class="bg-gray-200 hover-bg-gray-300 text-gray-600 font-bold py-2 px-4 rounded inline-flex items-center">
-                                <span>Last</span>
                                 <i class="fas fa-angle-double-right"></i>
                             </a>
                         </div>

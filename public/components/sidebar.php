@@ -31,13 +31,13 @@
             ';
             echo '
             <li class="px-6 py-4 hover-bg-gray-700 cursor-pointer space-x-2 flex items-center">
-                <i class="fa-solid fa-utensils mr-3"></i>
+                <i class="fa-solid fa-cubes-stacked mr-3"></i>
                 <a href="../manage_ingredient_stocks/manage_ingredient_stocks_list.php">Ingredient Stock</a>
             </li>
             ';
             echo '
             <li class="px-6 py-4 hover-bg-gray-700 cursor-pointer space-x-2 flex items-center">
-                <i class="fa-solid fa-utensils mr-3"></i>
+                <i class="fa-solid fa-money-bill-transfer mr-3"></i>
                 <a href="../manage_transactions/manage_transactions_list.php">Transactions</a>
             </li>
             ';

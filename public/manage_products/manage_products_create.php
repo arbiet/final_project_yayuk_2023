@@ -10,7 +10,7 @@ $product_name = $photo_url = $selling_price = $manufacturer = $weight = '';
 $errors = array();
 
 // Fetch ingredient names from the Ingredients table
-$ingredientNamesQuery = "SELECT id, ingredient_name FROM Ingredients";
+$ingredientNamesQuery = "SELECT IngredientID, IngredientName FROM Ingredients";
 $ingredientNamesResult = mysqli_query($conn, $ingredientNamesQuery);
 
 $ingredientNames = array();

@@ -25,9 +25,9 @@ $errors = array();
             <div class="flex items-start justify-start p-6 shadow-md m-4 flex-1 flex-col">
                 <!-- Header Content -->
                 <div class="flex flex-row justify-between items-center w-full border-b-2 border-gray-600 mb-2 pb-2">
-                    <h1 class="text-3xl text-gray-800 font-semibol w-full">Ingredients</h1>
+                    <h1 class="text-3xl text-gray-800 font-semibol w-full">Ingredient Stocks</h1>
                     <div class="flex flex-row justify-end items-center">
-                        <a href="<?php echo $baseUrl; ?>public/manage_ingredients/manage_ingredients_create.php" class="bg-green-500 hover-bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                        <a href="<?php echo $baseUrl; ?>public/manage_ingredient_stocks/manage_ingredient_stocks_add.php" class="bg-green-500 hover-bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                             <i class="fas fa-plus mr-2"></i>
                             <span>Create</span>
                         </a>
@@ -40,7 +40,7 @@ $errors = array();
                     <div class="flex flex-row justify-between items-center w-full mb-2 pb-2">
                         <div>
                             <h2 class="text-lg text-gray-800 font-semibold">Welcome back, <?php echo $_SESSION['FullName']; ?>!</h2>
-                            <p class="text-gray-600 text-sm">Ingredient information.</p>
+                            <p class="text-gray-600 text-sm">Ingredient stock information.</p>
                         </div>
                         <!-- Search -->
                         <form class="flex items-center justify-end space-x-2 w-96">
@@ -59,25 +59,28 @@ $errors = array();
                             <tr>
                                 <th class="text-left py-2">No</th>
                                 <th class="text-left py-2">Ingredient Name</th>
-                                <th class="text-left py-2">Purchase Price (IDR)</th>
-                                <th class="text-left py-2">Quantity per Purchase</th>
-                                <th class="text-left py-2">Servings per Ingredient</th>
-                                <th class="text-left py-2">Holding Cost</th>
+                                <th class="text-left py-2">Quantity</th>
+                                <th class="text-left py-2">Last Update</th>
                                 <th class="text-left py-2">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
-                            // Fetch ingredient data from the database
+                            // Fetch ingredient stock data from the database
                             $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
                             $page = isset($_GET['page']) ? $_GET['page'] : 1;
-                            $query = "SELECT * FROM Ingredients
-                                      WHERE IngredientName LIKE '%$searchTerm%'
-                                      LIMIT 15 OFFSET " . ($page - 1) * 15;
+                            $query = "SELECT IngStk.StockID, IngStk.IngredientID, IngStk.Quantity, IngStk.LastUpdateStock, I.IngredientName
+                                FROM IngredientStocks IngStk
+                                INNER JOIN Ingredients I ON IngStk.IngredientID = I.IngredientID
+                                WHERE I.IngredientName LIKE '%$searchTerm%'
+                                LIMIT 15 OFFSET " . ($page - 1) * 15;
                             $result = $conn->query($query);
 
                             // Count total rows in the table
-                            $queryCount = "SELECT COUNT(*) AS count FROM Ingredients WHERE IngredientName LIKE '%$searchTerm%'";
+                            $queryCount = "SELECT COUNT(*) AS count
+                                FROM IngredientStocks IngStk
+                                INNER JOIN Ingredients I ON IngStk.IngredientID = I.IngredientID
+                                WHERE I.IngredientName LIKE '%$searchTerm%'";
                             $resultCount = $conn->query($queryCount);
                             $rowCount = $resultCount->fetch_assoc()['count'];
                             $totalPage = ceil($rowCount / 15);
@@ -89,22 +92,16 @@ $errors = array();
                                 <tr>
                                     <td class="py-2"><?php echo $no++; ?></td>
                                     <td class="py-2"><?php echo $row['IngredientName']; ?></td>
-                                    <td class="py-2"><?php echo number_format($row['PurchasePrice'], 0, ',', '.'); ?></td>
-                                    <td class="py-2"><?php echo $row['QuantityPerPurchase']; ?></td>
-                                    <td class="py-2"><?php echo $row['ServingsPerIngredient']; ?></td>
-                                    <td class="py-2"><?php echo $row['HoldingCost'] ? 'Yes' : 'No'; ?></td>
+                                    <td class="py-2"><?php echo $row['Quantity']; ?></td>
+                                    <td class="py-2"><?php echo $row['LastUpdateStock']; ?></td>
                                     <td class='py-2'>
-                                        <a href="<?php echo $baseUrl; ?>public/manage_ingredients/manage_ingredients_detail.php?id=<?php echo $row['IngredientID'] ?>" class='bg-green-500 hover-bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mr-2 text-sm'>
-                                            <i class='fas fa-eye mr-2'></i>
-                                            <span>Detail</span>
+                                        <a href="<?php echo $baseUrl; ?>public/manage_ingredient_stocks/in.php?id=<?php echo $row['StockID']; ?>" class='bg-blue-500 hover-bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mr-2 text-sm'>
+                                            <i class='fas fa-plus mr-2'></i>
+                                            <span>In</span>
                                         </a>
-                                        <a href="<?php echo $baseUrl; ?>public/manage_ingredients/manage_ingredients_update.php?id=<?php echo $row['IngredientID'] ?>" class='bg-blue-500 hover-bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mr-2 text-sm'>
-                                            <i class='fas fa-edit mr-2'></i>
-                                            <span>Edit</span>
-                                        </a>
-                                        <a href="#" onclick="confirmDelete(<?php echo $row['IngredientID']; ?>)" class='bg-red-500 hover-bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center text-sm'>
-                                            <i class='fas fa-trash mr-2'></i>
-                                            <span>Delete</span>
+                                        <a href="<?php echo $baseUrl; ?>public/manage_ingredient_stocks/out.php?id=<?php echo $row['StockID']; ?>" class='bg-red-500 hover-bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center text-sm'>
+                                            <i class='fas fa-minus mr-2'></i>
+                                            <span>Out</span>
                                         </a>
                                     </td>
                                 </tr>
@@ -113,7 +110,7 @@ $errors = array();
                             if ($result->num_rows === 0) {
                             ?>
                                 <tr>
-                                    <td colspan="7" class="py-2 text-center">No data found.</td>
+                                    <td colspan="5" class="py-2 text-center">No data found.</td>
                                 </tr>
                             <?php
                             }
