@@ -10,7 +10,7 @@ $product_name = $photo_url = $selling_price = $manufacturer = $weight = '';
 $errors = array();
 
 // Fetch ingredient names from the Ingredients table
-$ingredientNamesQuery = "SELECT id, ingredient_name FROM Ingredients";
+$ingredientNamesQuery = "SELECT IngredientID, IngredientName FROM Ingredients";
 $ingredientNamesResult = mysqli_query($conn, $ingredientNamesQuery);
 
 $ingredientNames = array();
@@ -21,7 +21,7 @@ while ($row = mysqli_fetch_assoc($ingredientNamesResult)) {
 // Fetch existing product details
 if (isset($_GET['id'])) {
     $productID = $_GET['id'];
-    $productQuery = "SELECT * FROM Products WHERE id = ?";
+    $productQuery = "SELECT * FROM Products WHERE ProductID = ?";
     $stmt = $conn->prepare($productQuery);
     $stmt->bind_param("i", $productID);
     $stmt->execute();
@@ -29,11 +29,11 @@ if (isset($_GET['id'])) {
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        $product_name = $row['product_name'];
-        $photo_url = $row['photo_url'];
-        $selling_price = $row['selling_price'];
-        $manufacturer = $row['manufacturer'];
-        $weight = $row['weight'];
+        $product_name = $row['ProductName'];
+        $photo_url = $row['PhotoURL'];
+        $selling_price = $row['SellingPrice'];
+        $manufacturer = $row['Manufacturer'];
+        $weight = $row['Weight'];
     } else {
         // Handle product not found error
         echo '<script>
@@ -82,25 +82,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         try {
             // Step 1: Delete existing ingredients for the product
-            $deleteIngredientsQuery = "DELETE FROM ProductIngredients WHERE product_id = ?";
+            $deleteIngredientsQuery = "DELETE FROM ProductIngredients WHERE ProductID = ?";
             $deleteStmt = $conn->prepare($deleteIngredientsQuery);
             $deleteStmt->bind_param("i", $productID);
             $deleteStmt->execute();
 
             // Step 2: Update product data
-            $updateQuery = "UPDATE Products SET product_name = ?, photo_url = ?, selling_price = ?, manufacturer = ?, weight = ? WHERE id = ?";
+            $updateQuery = "UPDATE Products SET ProductName = ?, PhotoURL = ?, SellingPrice = ?, Manufacturer = ?, Weight = ? WHERE ProductID = ?";
             $stmt = $conn->prepare($updateQuery);
             $stmt->bind_param("ssdssi", $product_name, $photo_url, $selling_price, $manufacturer, $weight, $productID);
 
             if ($stmt->execute()) {
                 // Step 3: Insert updated ingredients
-                $ingredients = $_POST['ingredients'];
+                $ingredients = $_POST['Ingredients'];
 
                 foreach ($ingredients as $ingredient) {
-                    $ingredientID = mysqli_real_escape_string($conn, $ingredient['ingredient_id']);
-                    $quantity = mysqli_real_escape_string($conn, $ingredient['quantity']);
+                    $ingredientID = mysqli_real_escape_string($conn, $ingredient['IngredientID']);
+                    $quantity = mysqli_real_escape_string($conn, $ingredient['Quantity']);
 
-                    $insertIngredientQuery = "INSERT INTO ProductIngredients (product_id, ingredient_id, quantity) VALUES (?, ?, ?)";
+                    $insertIngredientQuery = "INSERT INTO ProductIngredients (ProductID, IngredientID, Quantity) VALUES (?, ?, ?)";
                     $insertStmt = $conn->prepare($insertIngredientQuery);
                     $insertStmt->bind_param("iid", $productID, $ingredientID, $quantity);
                     $insertStmt->execute();
@@ -249,10 +249,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div id="ingredients-container">
                                 <?php
                                 // Populate existing ingredients
-                                $existingIngredientsQuery = "SELECT Ingredients.id, Ingredients.ingredient_name, ProductIngredients.quantity
-                                                              FROM Ingredients
-                                                              JOIN ProductIngredients ON Ingredients.id = ProductIngredients.ingredient_id
-                                                              WHERE ProductIngredients.product_id = ?";
+                                $existingIngredientsQuery = "SELECT Ingredients.IngredientID, Ingredients.IngredientName, ProductIngredients.quantity
+                              FROM Ingredients
+                              JOIN ProductIngredients ON Ingredients.IngredientID = ProductIngredients.IngredientID
+                              WHERE ProductIngredients.ProductID = ?";
                                 $existingStmt = $conn->prepare($existingIngredientsQuery);
                                 $existingStmt->bind_param("i", $productID);
                                 $existingStmt->execute();
@@ -263,24 +263,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $existingIngredients[] = $existingRow;
                                 }
 
+
                                 foreach ($existingIngredients as $existingIngredient) {
                                     echo '<div class="mt-4">';
                                     echo '<h2 class="text-lg font-semibold text-gray-800 mb-2">Ingredient</h2>';
-                                    echo '<label for="ingredients[' . $existingIngredient['id'] . '][ingredient_id]" class="block font-semibold text-gray-800 mt-2 mb-2">Ingredient Name <span class="text-red-500">*</span></label>';
-                                    echo '<select name="ingredients[' . $existingIngredient['id'] . '][ingredient_id]" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600">';
+                                    echo '<label for="ingredients[' . $existingIngredient['IngredientID'] . '][ingredient_id]" class="block font-semibold text-gray-800 mt-2 mb-2">Ingredient Name <span class="text-red-500">*</span></label>';
+                                    echo '<select name="ingredients[' . $existingIngredient['IngredientID'] . '][ingredient_id]" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600">';
                                     foreach ($ingredientNames as $ingredient) {
-                                        $selected = ($ingredient['id'] == $existingIngredient['id']) ? 'selected' : '';
-                                        echo "<option value='{$ingredient['id']}' $selected>{$ingredient['ingredient_name']}</option>";
+                                        $selected = ($ingredient['IngredientID'] == $existingIngredient['IngredientID']) ? 'selected' : '';
+                                        echo "<option value='{$ingredient['IngredientID']}' $selected>{$ingredient['IngredientName']}</option>";
                                     }
                                     echo '</select>';
-                                    echo '<label for="ingredients[' . $existingIngredient['id'] . '][quantity]" class="block font-semibold text-gray-800 mt-2 mb-2">Quantity <span class="text-red-500">*</span></label>';
-                                    echo '<input type="number" name="ingredients[' . $existingIngredient['id'] . '][quantity]" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Quantity" step="any" value="' . $existingIngredient['quantity'] . '">';
+
+                                    echo '<label for="ingredients[' . $existingIngredient['IngredientID'] . '][quantity]" class="block font-semibold text-gray-800 mt-2 mb-2">Quantity <span class="text-red-500">*</span></label>';
+                                    echo '<input type="number" name="ingredients[' . $existingIngredient['IngredientID'] . '][quantity]" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Quantity" step="any" value="' . $existingIngredient['quantity'] . '">';
                                     echo '<button type="button" onclick="removeIngredientField(this)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mt-2 mb-2">';
                                     echo '<i class="fas fa-trash-alt mr-2"></i>';
                                     echo '<span>Remove Ingredient</span>';
                                     echo '</button>';
                                     echo '</div>';
                                 }
+
                                 ?>
                             </div>
                             <button type="button" onclick="addIngredientField()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
@@ -320,24 +323,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         var newIngredientField = document.createElement('div');
         newIngredientField.className = 'mt-4';
         newIngredientField.innerHTML = `
-            <h2 class="text-lg font-semibold text-gray-800 mb-2">Ingredient ${ingredientCount + 1}</h2>
-            <label for="ingredients[new_${ingredientCount}][ingredient_id]" class="block font-semibold text-gray-800 mt-2 mb-2">Ingredient Name <span class="text-red-500">*</span></label>
-            <select name="ingredients[new_${ingredientCount}][ingredient_id]" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600">
-                <?php
-                foreach ($ingredientNames as $ingredient) {
-                    echo "<option value='{$ingredient['id']}'>{$ingredient['ingredient_name']}</option>";
-                }
-                ?>
-            </select>
+        <h2 class="text-lg font-semibold text-gray-800 mb-2">Ingredient ${ingredientCount + 1}</h2>
+        <label for="ingredients[new_${ingredientCount}][ingredient_id]" class="block font-semibold text-gray-800 mt-2 mb-2">Ingredient Name <span class="text-red-500">*</span></label>
+        <select name="ingredients[new_${ingredientCount}][ingredient_id]" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600">
+            ${ingredientNames.map(ingredient => `<option value="${ingredient.id}">${ingredient.IngredientName}</option>`).join('')}
+        </select>
 
-            <label for="ingredients[new_${ingredientCount}][quantity]" class="block font-semibold text-gray-800 mt-2 mb-2">Quantity <span class="text-red-500">*</span></label>
-            <input type="number" name="ingredients[new_${ingredientCount}][quantity]" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Quantity" step="any">
+        <label for="ingredients[new_${ingredientCount}][quantity]" class="block font-semibold text-gray-800 mt-2 mb-2">Quantity <span class="text-red-500">*</span></label>
+        <input type="number" name="ingredients[new_${ingredientCount}][quantity]" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Quantity" step="any">
 
-            <button type="button" onclick="removeIngredientField(this)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mt-2 mb-2">
-                <i class="fas fa-trash-alt mr-2"></i>
-                <span>Remove Ingredient</span>
-            </button>
-        `;
+        <button type="button" onclick="removeIngredientField(this)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mt-2 mb-2">
+            <i class="fas fa-trash-alt mr-2"></i>
+            <span>Remove Ingredient</span>
+        </button>
+    `;
 
         container.appendChild(newIngredientField);
     }

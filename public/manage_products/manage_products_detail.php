@@ -13,7 +13,7 @@ $ingredientsData = array();
 // Retrieve product data
 if (isset($_GET['id'])) {
     $productID = $_GET['id'];
-    $queryProduct = "SELECT * FROM Products WHERE id = $productID";
+    $queryProduct = "SELECT * FROM Products WHERE ProductID = $productID";
     $resultProduct = $conn->query($queryProduct);
 
     if ($resultProduct->num_rows > 0) {
@@ -21,8 +21,8 @@ if (isset($_GET['id'])) {
 
         // Retrieve ingredients data
         $queryIngredients = "SELECT Ingredients.* FROM Ingredients
-                             JOIN ProductIngredients ON Ingredients.id = ProductIngredients.ingredient_id
-                             WHERE ProductIngredients.product_id = $productID";
+                             JOIN ProductIngredients ON Ingredients.IngredientID = ProductIngredients.IngredientID
+                             WHERE ProductIngredients.ProductID = $productID";
         $resultIngredients = $conn->query($queryIngredients);
 
         if ($resultIngredients->num_rows > 0) {
@@ -74,18 +74,18 @@ if (isset($_GET['id'])) {
                         <div class="grid grid-cols-2 gap-4">
                             <div class="bg-white shadow-md p-4 rounded-md">
                                 <h3 class="text-lg font-semibold text-gray-800">Product Information</h3>
-                                <p><strong>Product Name:</strong> <?php echo $productData['product_name']; ?></p>
-                                <p><strong>Selling Price:</strong> <?php echo $productData['selling_price']; ?></p>
-                                <p><strong>Manufacturer:</strong> <?php echo $productData['manufacturer']; ?></p>
-                                <p><strong>Weight:</strong> <?php echo $productData['weight']; ?></p>
-                                <p><strong>Photo:</strong> <img src="../static/image/product/<?php echo $productData['photo_url']; ?>" alt="Product Photo" class="w-52"></p>
+                                <p><strong>Product Name:</strong> <?php echo $productData['ProductName']; ?></p>
+                                <p><strong>Selling Price:</strong> <?php echo $productData['SellingPrice']; ?></p>
+                                <p><strong>Manufacturer:</strong> <?php echo $productData['Manufacturer']; ?></p>
+                                <p><strong>Weight:</strong> <?php echo $productData['Weight']; ?></p>
+                                <p><strong>Photo:</strong> <img src="../static/image/product/<?php echo $productData['PhotoURL']; ?>" alt="Product Photo" class="w-52"></p>
                             </div>
                             <div class="bg-white shadow-md p-4 rounded-md">
                                 <h3 class="text-lg font-semibold text-gray-800">Ingredients</h3>
                                 <?php if (!empty($ingredientsData)) : ?>
                                     <ul>
                                         <?php foreach ($ingredientsData as $ingredient) : ?>
-                                            <li><?php echo $ingredient['ingredient_name']; ?></li>
+                                            <li><?php echo $ingredient['IngredientName']; ?></li>
                                         <?php endforeach; ?>
                                     </ul>
                                 <?php else : ?>

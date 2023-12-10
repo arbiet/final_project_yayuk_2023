@@ -83,15 +83,41 @@ $errors = array();
                         ?>
                             <div class="border-b-2 border-gray-300 p-4 mb-4">
                                 <div class="flex items-center justify-between">
-                                    <div>
-                                        <h3 class="text-xl text-gray-800 font-semibold"><?php echo $row['ProductName']; ?></h3>
-                                        <p class="text-gray-600">Manufacturer: <?php echo $row['Manufacturer']; ?></p>
+                                    <div class="ml-4 flex flex-row space-x-2">
+                                        <div class="flex">
+                                            <img src="../static/image/product/<?php echo $row['PhotoURL']; ?>" alt="<?php echo $row['ProductName']; ?>" class="w-40 h-40 object-cover rounded">
+                                        </div>
+                                        <div class="mt-2">
+                                            <h3 class="text-xl text-gray-800 font-semibold"><?php echo $row['ProductName']; ?></h3>
+                                            <p class="text-gray-600">Manufacturer: <?php echo $row['Manufacturer']; ?></p>
+                                            <p class="text-gray-800">Selling Price (IDR): <?php echo number_format($row['SellingPrice'], 0, ',', '.'); ?></p>
+                                            <p class="text-gray-800">Weight: <?php echo $row['Weight']; ?></p>
+                                        </div>
+                                        <table class="table-auto">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-xs">Ingredient</th>
+                                                    <th class="text-xs">Quantity</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                $ingredients = explode(',', $row['Ingredients_List']);
+                                                foreach ($ingredients as $ingredient) {
+                                                    list($name, $quantity) = explode(':', $ingredient);
+                                                ?>
+                                                    <tr>
+                                                        <td class="border text-xs"><?php echo $name; ?></td>
+                                                        <td class="border text-xs"><?php echo $quantity; ?></td>
+                                                    </tr>
+                                                <?php
+                                                }
+                                                ?>
+                                            </tbody>
+                                        </table>
                                     </div>
                                     <div>
-                                        <!-- Display Product Photo -->
-                                        <img src="../static/image/product/<?php echo $row['PhotoURL']; ?>" alt="<?php echo $row['ProductName']; ?>" class="w-16 h-16 object-cover rounded">
-                                    </div>
-                                    <div>
+                                        <!-- Tombol-tombol action tetap di sisi kanan -->
                                         <a href="<?php echo $baseUrl; ?>public/manage_products/manage_products_detail.php?id=<?php echo $row['ProductID'] ?>" class='bg-green-500 hover-bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center mr-2 text-sm'>
                                             <i class='fas fa-eye mr-2'></i>
                                             <span>Detail</span>
@@ -105,11 +131,6 @@ $errors = array();
                                             <span>Delete</span>
                                         </a>
                                     </div>
-                                </div>
-                                <div class="mt-2">
-                                    <p class="text-gray-800">Selling Price (IDR): <?php echo number_format($row['SellingPrice'], 0, ',', '.'); ?></p>
-                                    <p class="text-gray-800">Weight: <?php echo $row['Weight']; ?></p>
-                                    <p class="text-gray-800">Ingredients: <?php echo $row['Ingredients_List']; ?></p>
                                 </div>
                             </div>
                         <?php

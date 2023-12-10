@@ -231,7 +231,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <select name="ingredients[${ingredientCount}][ingredient_id]" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600">
                 <?php
                 foreach ($ingredientNames as $ingredient) {
-                    echo "<option value='{$ingredient['id']}'>{$ingredient['ingredient_name']}</option>";
+                    $id = isset($ingredient['id']) ? $ingredient['id'] : '';
+                    $name = isset($ingredient['ingredient_name']) ? $ingredient['ingredient_name'] : '';
+                    echo "<option value='$id'>$name</option>";
                 }
                 ?>
             </select>
