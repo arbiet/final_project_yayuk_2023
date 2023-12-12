@@ -7,8 +7,8 @@ include_once('../components/header.php');
 
 // Initialize variables
 $ingredient_id = $ingredient_name = $purchase_price = $quantity_per_purchase = $servings_per_ingredient = '';
-$holding_cost = $holding_cost_price = $shelf_life = $supplier_name = $description = $minimum_stock = '';
-$storage_location = $purchase_unit = '';
+$holding_cost = $shelf_life = $supplier_name = $description = $minimum_stock = '';
+$storage_location = $purchase_unit = $usage_per_day = $usage_per_month = $order_cost = $holding_cost_percentage = '';
 $errors = array();
 
 // Retrieve the ingredient's data to be updated (you might need to pass the ingredient ID to this page)
@@ -33,13 +33,16 @@ if (isset($_GET['id'])) {
         $quantity_per_purchase = $ingredient['QuantityPerPurchase'];
         $servings_per_ingredient = $ingredient['ServingsPerIngredient'];
         $holding_cost = $ingredient['HoldingCost'];
-        $holding_cost_price = $ingredient['HoldingCostPrice'];
         $shelf_life = $ingredient['ShelfLife'];
         $supplier_name = $ingredient['SupplierName'];
         $description = $ingredient['Description'];
         $minimum_stock = $ingredient['MinimumStock'];
         $storage_location = $ingredient['StorageLocation'];
         $purchase_unit = $ingredient['PurchaseUnit'];
+        $usage_per_day = $ingredient['UsagePerDay'];
+        $usage_per_month = $ingredient['UsagePerMonth'];
+        $order_cost = $ingredient['OrderCost'];
+        $holding_cost_percentage = $ingredient['HoldingCostPercentage'];
         // You can also retrieve other fields as needed
     }
 }
@@ -52,24 +55,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $quantity_per_purchase = mysqli_real_escape_string($conn, $_POST['quantity_per_purchase']);
     $servings_per_ingredient = mysqli_real_escape_string($conn, $_POST['servings_per_ingredient']);
     $holding_cost = mysqli_real_escape_string($conn, isset($_POST['holding_cost']) ? 1 : 0);
-    $holding_cost_price = mysqli_real_escape_string($conn, $_POST['holding_cost_price']);
     $shelf_life = mysqli_real_escape_string($conn, $_POST['shelf_life']);
     $supplier_name = mysqli_real_escape_string($conn, $_POST['supplier_name']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $minimum_stock = mysqli_real_escape_string($conn, $_POST['minimum_stock']);
     $storage_location = mysqli_real_escape_string($conn, $_POST['storage_location']);
     $purchase_unit = mysqli_real_escape_string($conn, $_POST['purchase_unit']);
-    // You should validate the fields and handle errors as needed
+    $usage_per_day = mysqli_real_escape_string($conn, $_POST['usage_per_day']);
+    $usage_per_month = mysqli_real_escape_string($conn, $_POST['usage_per_month']);
+    $order_cost = mysqli_real_escape_string($conn, $_POST['order_cost']);
+    $holding_cost_percentage = mysqli_real_escape_string($conn, $_POST['holding_cost_percentage']);
+
+    // Hitung nilai HoldingCostPrice dari persentase HoldingCostPercentage
+    $holding_cost_price = ($holding_cost_percentage / 100) * $purchase_price;
 
     // Update ingredient data in the database
     $query = "UPDATE Ingredients 
               SET IngredientName = ?, PurchasePrice = ?, QuantityPerPurchase = ?, ServingsPerIngredient = ?, 
                   HoldingCost = ?, HoldingCostPrice = ?, ShelfLife = ?, SupplierName = ?, Description = ?, 
-                  MinimumStock = ?, StorageLocation = ?, PurchaseUnit = ? 
+                  MinimumStock = ?, StorageLocation = ?, PurchaseUnit = ?, UsagePerDay = ?, UsagePerMonth = ?, OrderCost = ?, HoldingCostPercentage = ? 
               WHERE IngredientID = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param(
-        "sdddiidssdsss",
+        "sdddiidssdssddddd",
         $ingredient_name,
         $purchase_price,
         $quantity_per_purchase,
@@ -82,8 +90,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $minimum_stock,
         $storage_location,
         $purchase_unit,
+        $usage_per_day,
+        $usage_per_month,
+        $order_cost,
+        $holding_cost_percentage,
         $ingredient_id
     );
+
+
 
     if ($stmt->execute()) {
         // Update successful
@@ -193,16 +207,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             </p>
                         <?php endif; ?>
 
+                        <!-- Usage Per Day -->
+                        <label for="usage_per_day" class="block font-semibold text-gray-800 mt-2 mb-2">Usage Per Day</label>
+                        <input type="number" id="usage_per_day" name="usage_per_day" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Usage Per Day" value="<?php echo $usage_per_day; ?>" step="any">
+
+                        <!-- Usage Per Month -->
+                        <label for="usage_per_month" class="block font-semibold text-gray-800 mt-2 mb-2">Usage Per Month</label>
+                        <input type="number" id="usage_per_month" name="usage_per_month" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Usage Per Month" value="<?php echo $usage_per_month; ?>" step="any">
+
+                        <!-- Order Cost -->
+                        <label for="order_cost" class="block font-semibold text-gray-800 mt-2 mb-2">Order Cost</label>
+                        <input type="number" id="order_cost" name="order_cost" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Order Cost" value="<?php echo $order_cost; ?>" step="any">
+
                         <!-- Holding Cost -->
                         <label for="holding_cost" class="block font-semibold text-gray-800 mt-2 mb-2">Holding Cost</label>
                         <input type="checkbox" id="holding_cost" name="holding_cost" class="mr-2" <?php echo ($holding_cost == 1) ? 'checked' : ''; ?>>
 
-                        <!-- Holding Cost Price -->
-                        <label for="holding_cost_price" class="block font-semibold text-gray-800 mt-2 mb-2">Holding Cost Price</label>
-                        <input type="number" id="holding_cost_price" name="holding_cost_price" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Holding Cost Price" value="<?php echo $holding_cost_price; ?>">
-                        <?php if (isset($errors['holding_cost_price'])) : ?>
+                        <!-- Holding Cost Percentage -->
+                        <label for="holding_cost_percentage" class="block font-semibold text-gray-800 mt-2 mb-2">Holding Cost Percentage</label>
+                        <input type="number" id="holding_cost_percentage" name="holding_cost_percentage" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Holding Cost Percentage" value="<?php echo $holding_cost_percentage; ?>" step="any">
+                        <?php if (isset($errors['holding_cost_percentage'])) : ?>
                             <p class="text-red-500 text-sm">
-                                <?php echo $errors['holding_cost_price']; ?>
+                                <?php echo $errors['holding_cost_percentage']; ?>
                             </p>
                         <?php endif; ?>
 
@@ -270,6 +296,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             Update Ingredient
                         </button>
                     </form>
+
                     <!-- End Ingredient Update Form -->
                 </div>
                 <!-- End Content -->

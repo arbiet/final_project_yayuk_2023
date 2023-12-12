@@ -7,7 +7,8 @@ include_once('../components/header.php');
 
 // Inisialisasi variabel
 $ingredient_name = $purchase_price = $quantity_per_purchase = $servings_per_ingredient = $holding_cost = '';
-$holding_cost_price = $shelf_life = $supplier_name = $description = $minimum_stock = $storage_location = $purchase_unit = '';
+$shelf_life = $supplier_name = $description = $minimum_stock = $storage_location = $purchase_unit = '';
+$usage_per_day = $usage_per_month = $order_cost = $holding_cost_percentage = '';
 
 $errors = array();
 
@@ -19,13 +20,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $quantity_per_purchase = mysqli_real_escape_string($conn, $_POST['quantity_per_purchase']);
     $servings_per_ingredient = mysqli_real_escape_string($conn, $_POST['servings_per_ingredient']);
     $holding_cost = mysqli_real_escape_string($conn, isset($_POST['holding_cost']) ? 1 : 0);
-    $holding_cost_price = mysqli_real_escape_string($conn, $_POST['holding_cost_price']);
     $shelf_life = mysqli_real_escape_string($conn, $_POST['shelf_life']);
     $supplier_name = mysqli_real_escape_string($conn, $_POST['supplier_name']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $minimum_stock = mysqli_real_escape_string($conn, $_POST['minimum_stock']);
     $storage_location = mysqli_real_escape_string($conn, $_POST['storage_location']);
     $purchase_unit = mysqli_real_escape_string($conn, $_POST['purchase_unit']);
+    $usage_per_day = mysqli_real_escape_string($conn, $_POST['usage_per_day']);
+    $usage_per_month = mysqli_real_escape_string($conn, $_POST['usage_per_month']);
+    $order_cost = mysqli_real_escape_string($conn, $_POST['order_cost']);
+    $holding_cost_percentage = mysqli_real_escape_string($conn, $_POST['holding_cost_percentage']);
+
+    // Hitung nilai HoldingCostPrice dari persentase HoldingCostPercentage
+    $holding_cost_price = ($holding_cost_percentage / 100) * $purchase_price;
 
     // Periksa kesalahan
     if (empty($ingredient_name)) {
@@ -43,23 +50,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Jika tidak ada kesalahan, masukkan data ke database
     if (empty($errors)) {
-        $query = "INSERT INTO Ingredients (IngredientID, IngredientName, PurchasePrice, QuantityPerPurchase, ServingsPerIngredient, HoldingCost, HoldingCostPrice, ShelfLife, SupplierName, Description, MinimumStock, StorageLocation, PurchaseUnit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO Ingredients (IngredientName, PurchasePrice, QuantityPerPurchase, ServingsPerIngredient, HoldingCost, ShelfLife, SupplierName, Description, MinimumStock, StorageLocation, PurchaseUnit, UsagePerDay, UsagePerMonth, OrderCost, HoldingCostPercentage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $conn->prepare($query);
         $stmt->bind_param(
-            "sdddiidssdss",
+            "sdddiidssdssddds",
             $ingredient_name,
             $purchase_price,
             $quantity_per_purchase,
             $servings_per_ingredient,
             $holding_cost,
-            $holding_cost_price,
             $shelf_life,
             $supplier_name,
             $description,
             $minimum_stock,
             $storage_location,
-            $purchase_unit
+            $purchase_unit,
+            $usage_per_day,
+            $usage_per_month,
+            $order_cost,
+            $holding_cost_percentage
         );
 
         if ($stmt->execute()) {
@@ -95,7 +105,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
-
 // Tutup koneksi database
 ?>
 
@@ -176,9 +185,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <label for="holding_cost" class="block font-semibold text-gray-800 mt-2 mb-2">Holding Cost</label>
                         <input type="checkbox" id="holding_cost" name="holding_cost" class="border-gray-300 text-gray-600" <?php echo $holding_cost ? 'checked' : ''; ?>>
 
-                        <!-- Harga Holding Cost -->
-                        <label for="holding_cost_price" class="block font-semibold text-gray-800 mt-2 mb-2">Harga Holding Cost</label>
-                        <input type="number" id="holding_cost_price" name="holding_cost_price" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Harga Holding Cost" value="<?php echo $holding_cost_price; ?>" step="any">
+                        <!-- Usage Per Day -->
+                        <label for="usage_per_day" class="block font-semibold text-gray-800 mt-2 mb-2">Penggunaan per Hari</label>
+                        <input type="number" id="usage_per_day" name="usage_per_day" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Penggunaan per Hari" value="<?php echo $usage_per_day; ?>" step="any">
+
+                        <!-- Usage Per Month -->
+                        <label for="usage_per_month" class="block font-semibold text-gray-800 mt-2 mb-2">Penggunaan per Bulan</label>
+                        <input type="number" id="usage_per_month" name="usage_per_month" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Penggunaan per Bulan" value="<?php echo $usage_per_month; ?>" step="any">
+
+                        <!-- Order Cost -->
+                        <label for="order_cost" class="block font-semibold text-gray-800 mt-2 mb-2">Biaya Setiap Kali Pesan</label>
+                        <input type="number" id="order_cost" name="order_cost" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Biaya Setiap Kali Pesan" value="<?php echo $order_cost; ?>" step="any">
+
+                        <!-- Holding Cost Percentage -->
+                        <label for="holding_cost_percentage" class="block font-semibold text-gray-800 mt-2 mb-2">Persentase Biaya Holding Cost</label>
+                        <input type="number" id="holding_cost_percentage" name="holding_cost_percentage" class="w-full rounded-md border-gray-300 px-2 py-2 border text-gray-600" placeholder="Persentase Biaya Holding Cost" value="<?php echo $holding_cost_percentage; ?>" step="any">
 
                         <!-- Masa Simpan -->
                         <label for="shelf_life" class="block font-semibold text-gray-800 mt-2 mb-2">Masa Simpan</label>
