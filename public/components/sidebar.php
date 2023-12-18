@@ -44,7 +44,7 @@
             echo '
             <li class="px-6 py-4 hover-bg-gray-700 cursor-pointer space-x-2 flex items-center">
                 <i class="fa-solid fa-utensils mr-3"></i>
-                <a href="../restocks/restocks_list.php">Restock Analisis</a>
+                <a href="../manage_restocks/manage_restocks_list.php">Restock Analisis</a>
             </li>
             ';
         }

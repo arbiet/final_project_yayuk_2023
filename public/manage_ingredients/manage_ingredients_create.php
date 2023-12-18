@@ -50,11 +50,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Jika tidak ada kesalahan, masukkan data ke database
     if (empty($errors)) {
-        $query = "INSERT INTO Ingredients (IngredientName, PurchasePrice, QuantityPerPurchase, ServingsPerIngredient, HoldingCost, ShelfLife, SupplierName, Description, MinimumStock, StorageLocation, PurchaseUnit, UsagePerDay, UsagePerMonth, OrderCost, HoldingCostPercentage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO Ingredients (
+        IngredientName, 
+        PurchasePrice, 
+        QuantityPerPurchase, 
+        ServingsPerIngredient, 
+        HoldingCost, 
+        ShelfLife, 
+        SupplierName, 
+        Description, 
+        MinimumStock, 
+        StorageLocation, 
+        PurchaseUnit, 
+        UsagePerDay, 
+        UsagePerMonth, 
+        OrderCost, 
+        HoldingCostPercentage
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $conn->prepare($query);
         $stmt->bind_param(
-            "sdddiidssdssddds",
+            "sdddiidssdssddd",
             $ingredient_name,
             $purchase_price,
             $quantity_per_purchase,
