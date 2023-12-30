@@ -84,8 +84,30 @@ $errors = array();
 
                     $eoq = sqrt((2 * $demand * $orderCost) / ((($purchasePrice / 100) * $holdingCostPercentage)));
 
+                    // Calculate historical demand from IngredientTransactions table
+                    $ingredientID = $row['IngredientID'];
+                    $historicalDemandQuery = "SELECT Quantity FROM IngredientTransactions WHERE IngredientID = $ingredientID AND TransactionType = 'Out'";
+                    $historicalDemandResult = $conn->query($historicalDemandQuery);
+
+                    $historicalDemand = array();
+                    while ($demandRow = $historicalDemandResult->fetch_assoc()) {
+                        $historicalDemand[] = $demandRow['Quantity'];
+                    }
+
+                    // Calculate mean demand
+                    $demandMean = ($historicalDemand) ? array_sum($historicalDemand) / count($historicalDemand) : 0;
+
+                    // Calculate standard deviation of demand
+                    $standardDeviation = ($historicalDemand) ? sqrt(array_sum(array_map(function ($demand) use ($demandMean) {
+                        return pow($demand - $demandMean, 2);
+                    }, $historicalDemand)) / count($historicalDemand)) : 0;
+
+                    // Safety Stock calculation
+                    $safetyFactor = 1.645; // You can adjust this based on your desired confidence level
+                    $safetyStock = $safetyFactor * $standardDeviation;
+
                     // Calculate restock information
-                    $restockQuantity = $eoq; // You can modify this based on your specific logic
+                    $restockQuantity = $eoq + $safetyStock; // You can modify this based on your specific logic
 
                     // Calculate restocksPerMonth based on demand and EOQ
                     $demand = $row['UsagePerMonth']; // You might want to move this line inside the while loop
@@ -101,14 +123,15 @@ $errors = array();
                     // Check if today requires restocking
                     $currentDay = date('j'); // Get the current day of the month (1-31)
 
-                    if ($stock < $eoq) {
-                        // Today requires restocking
+                    
+
+                    // Check if today requires restocking considering Safety Stock
+                    if ($stock < ($eoq + $safetyStock)) {
                         $restockStatus = 'Restock Required';
-                        $restockColor = 'text-red-500'; // Red text for restock required
+                        $restockColor = 'text-red-500';
                     } else {
-                        // Today does not require restocking
                         $restockStatus = 'No Restock Needed';
-                        $restockColor = 'text-green-500'; // Green text for no restock needed
+                        $restockColor = 'text-green-500';
                     }
                     ?>
                         <!-- Displaying each ingredient information -->
@@ -171,13 +194,16 @@ $errors = array();
                             <div class="text-gray-600">
                                 <div class="text-xl font-semibold">EOQ - Economy Order Quantity</div>
                                 <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-sort-numeric-up"></i>EOQ: Rp <?php echo number_format($eoq, 2); ?> (purchase quantity)
+                                    <i class="mr-2 fas fa-sort-numeric-up"></i>EOQ: <?php echo number_format($eoq, 2); ?>
                                 </div>
                                 <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-truck"></i>Restock Quantity: <?php echo number_format($restockQuantity, 2); ?>
+                                    <i class="mr-2 fas fa-sort-numeric-down"></i>Safety Stock: <?php echo number_format($safetyStock, 2); ?>
                                 </div>
                                 <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-calendar-day"></i>Restocks Per Month: <?php echo $restocksPerMonth; ?>
+                                    <i class="mr-2 fas fa-sort-numeric-down"></i>Reorder Point: <?php echo number_format($restockQuantity, 2), " " ,  $row['PurchaseUnit']; ?> 
+                                </div>
+                                <div class="text-gray-600">
+                                    <i class="mr-2 fas fa-calendar-day"></i>Restocks Per Month: <?php echo $restocksPerMonth; ?> Times
                                 </div>
                                 <div class="text-gray-600">
                                     <i class="mr-2 fas fa-clock"></i>Days Between Restocks: <?php echo $daysBetweenRestocks; ?> days
@@ -185,7 +211,7 @@ $errors = array();
                                 <div class="text-gray-600">
                                     <i class="mr-2 fas fa-info-circle"></i>Components:
                                     <ul>
-                                        <li>Demand: Rp <?php echo number_format($demand, 2); ?></li>
+                                        <li>Demand: <?php echo number_format($demand, 2), " " ,$row['PurchaseUnit'] , " / month"; ?></li>
                                         <li>Order Cost: Rp <?php echo number_format($orderCost, 2); ?></li>
                                         <li>Holding Cost Percentage: <?php echo $holdingCostPercentage; ?>%</li>
                                         <li>Purchase Price: Rp <?php echo number_format($purchasePrice, 2); ?></li>
