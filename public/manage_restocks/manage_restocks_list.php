@@ -86,13 +86,19 @@ $errors = array();
 
                     // Calculate historical demand from IngredientTransactions table
                     $ingredientID = $row['IngredientID'];
-                    $historicalDemandQuery = "SELECT Quantity FROM IngredientTransactions WHERE IngredientID = $ingredientID AND TransactionType = 'Out'";
+                    $historicalDemandQuery = "SELECT Quantity, MONTH(Timestamp) as Month FROM IngredientTransactions WHERE IngredientID = $ingredientID AND TransactionType = 'Out'";
                     $historicalDemandResult = $conn->query($historicalDemandQuery);
 
                     $historicalDemand = array();
+                    $monthlyDemand = array_fill(1, 12, 0); // Initialize an array to store monthly demand, assuming 12 months
+
                     while ($demandRow = $historicalDemandResult->fetch_assoc()) {
                         $historicalDemand[] = $demandRow['Quantity'];
+                        $month = $demandRow['Month'];
+                        $monthlyDemand[$month] += $demandRow['Quantity'];
                     }
+                    
+                    print_r($historicalDemand);
 
                     // Calculate mean demand
                     $demandMean = ($historicalDemand) ? array_sum($historicalDemand) / count($historicalDemand) : 0;
@@ -106,12 +112,13 @@ $errors = array();
                     $safetyFactor = 1.645; // You can adjust this based on your desired confidence level
                     $safetyStock = $safetyFactor * $standardDeviation;
 
-                    if($safetyStock == 0) {
+                    if ($safetyStock == 0) {
                         $safetyStock = 0.01;
                     }
 
                     // Calculate restock information
                     $restockQuantity = $eoq + $safetyStock; // You can modify this based on your specific logic
+
 
                     // Calculate restocksPerMonth based on demand and EOQ
                     $demand = $row['UsagePerMonth']; // You might want to move this line inside the while loop
@@ -215,6 +222,7 @@ $errors = array();
                                 <div class="text-gray-600">
                                     <i class="mr-2 fas fa-info-circle"></i>Components:
                                     <ul>
+                                        <li>Stock: <?php echo number_format($row['Stock'], 2), " kg"; ?></li>
                                         <li>Demand: <?php echo number_format($demand, 2), " " ,$row['PurchaseUnit'] , " / month"; ?></li>
                                         <li>Order Cost: Rp <?php echo number_format($orderCost, 2); ?></li>
                                         <li>Holding Cost Percentage: <?php echo $holdingCostPercentage; ?>%</li>
