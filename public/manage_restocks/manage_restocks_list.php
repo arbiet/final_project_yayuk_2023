@@ -106,6 +106,10 @@ $errors = array();
                     $safetyFactor = 1.645; // You can adjust this based on your desired confidence level
                     $safetyStock = $safetyFactor * $standardDeviation;
 
+                    if($safetyStock == 0) {
+                        $safetyStock = 0.01;
+                    }
+
                     // Calculate restock information
                     $restockQuantity = $eoq + $safetyStock; // You can modify this based on your specific logic
 
