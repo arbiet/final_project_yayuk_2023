@@ -107,6 +107,9 @@ $errors = array();
                         $standardDeviation = ($historicalDemand) ? sqrt(array_sum(array_map(function ($demand) use ($demandMean) {
                             return pow($demand - $demandMean, 2);
                         }, $historicalDemand)) / count($historicalDemand)) : 0;
+                        // echo $demandMean;
+                        // echo "<br/>";
+                        // echo $standardDeviation;
 
                         // Safety Stock calculation
                         $safetyFactor = 1.645; // You can adjust this based on your desired confidence level
@@ -115,6 +118,15 @@ $errors = array();
                         if ($safetyStock == 0) {
                             $safetyStock = 0.01;
                         }
+
+                        // Reorder Point calculation
+                        $leadTimeDemand = $monthlyDemand[date('n')];
+                        $reorderPoint = $leadTimeDemand + $safetyStock;
+                        // echo $leadTimeDemand;
+                        // echo "<br/>";
+                        // echo $reorderPoint;
+                        $eoq = sqrt((2 * $reorderPoint * $orderCost) / ((($purchasePrice / 100) * $holdingCostPercentage)));
+
 
                         // Calculate restock information
                         $restockQuantity = $eoq + $safetyStock; // You can modify this based on your specific logic
@@ -237,7 +249,7 @@ $errors = array();
                             <div class="flex-shrink-0 mt-2">
                                 <!-- <a href="<?php // echo $baseUrl; 
                                                 ?>public/view_transactions.php?stock_id=<?php //echo $row['StockID']; 
-                                                                                                                ?>" class="text-xs bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                                                                                        ?>" class="text-xs bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                                     <i class="fas fa-eye mr-2"></i>
                                     <span>Transactions</span>
                                 </a> -->

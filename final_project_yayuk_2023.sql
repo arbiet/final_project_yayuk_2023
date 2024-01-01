@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 01, 2024 at 01:56 PM
+-- Generation Time: Jan 01, 2024 at 03:54 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -106,7 +106,7 @@ INSERT INTO `IngredientStocks` (`StockID`, `IngredientID`, `Quantity`, `Quantity
 (11, 13, 4.00, 200.00, '2023-12-30 17:00:00'),
 (12, 14, 10.00, 1000.00, '2023-12-30 17:00:00'),
 (13, 15, 4.00, 840.00, '2023-12-30 17:00:00'),
-(14, 16, 0.00, 0.00, '2023-12-30 17:00:00'),
+(14, 16, 1.00, 2700.00, '2023-12-30 17:00:00'),
 (15, 17, 4.00, 120.00, '2023-12-30 17:00:00'),
 (16, 18, 12.00, 960.00, '2023-12-30 17:00:00'),
 (17, 19, 3.00, 162.00, '2023-12-30 17:00:00'),
@@ -433,7 +433,9 @@ INSERT INTO `IngredientTransactions` (`TransactionID`, `IngredientID`, `Transact
 (297, 21, 'Out', 30.00, 6000.00, '2023-07-31 17:00:00'),
 (298, 21, 'Out', 30.00, 6000.00, '2023-08-31 17:00:00'),
 (299, 21, 'Out', 30.00, 6000.00, '2023-09-30 17:00:00'),
-(300, 21, 'Out', 30.00, 6000.00, '2023-10-31 17:00:00');
+(300, 21, 'Out', 30.00, 6000.00, '2023-10-31 17:00:00'),
+(301, 16, 'Out', 1.00, 2700.00, '2023-12-29 17:00:00'),
+(302, 16, 'In', 2.00, 5400.00, '2023-12-30 17:00:00');
 
 -- --------------------------------------------------------
 
@@ -480,7 +482,13 @@ INSERT INTO `LogActivities` (`LogID`, `UserID`, `ActivityDescription`, `Activity
 (25, 137648118, 'Ingredient with Name: Gula Pasir has been updated.', '2023-12-18 02:48:51'),
 (26, 137648118, 'Ingredient with Name: Air Galon  has been updated.', '2023-12-18 02:50:54'),
 (27, 137648118, 'Bahan dengan Nama: Saos Sachet telah dibuat dengan detail berikut - Harga Beli: 10000, Jumlah per Beli: 2, Porsi per Bahan: 100.', '2023-12-18 02:52:11'),
-(28, 137648118, 'Ingredient with Name: Nasi Putih has been updated.', '2023-12-18 03:55:15');
+(28, 137648118, 'Ingredient with Name: Nasi Putih has been updated.', '2023-12-18 03:55:15'),
+(29, 137648118, 'User with Username: yayuk has been update.', '2024-01-01 14:52:05'),
+(30, 137648118, 'User with Username: admin has been update.', '2024-01-01 14:52:14'),
+(31, 137648118, 'User logged out', '2024-01-01 14:52:22'),
+(32, 0, 'User logged in', '2024-01-01 14:52:27'),
+(33, 0, 'User logged out', '2024-01-01 14:52:42'),
+(34, 0, 'User logged in', '2024-01-01 14:53:36');
 
 -- --------------------------------------------------------
 
@@ -572,8 +580,8 @@ CREATE TABLE `Users` (
 --
 
 INSERT INTO `Users` (`UserID`, `Username`, `Password`, `Email`, `FullName`, `DateOfBirth`, `Gender`, `Address`, `PhoneNumber`, `RoleID`, `AccountCreationDate`, `LastLogin`, `AccountStatus`, `ProfilePictureURL`, `ActivationStatus`) VALUES
-(0, 'ikimukti', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', '19103020046@unpkediri.ac.id', 'Firmansyah Mukti Wijaya', '2023-10-12', 'Male', 'Nglaban 1111', '081216318022', 2, '2023-11-25 12:09:14', '2023-10-29 20:04:55', NULL, '653e5a409b4fb.jpeg', NULL),
-(137648118, 'admin', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'admin@ikimukti.com', 'Administrator', NULL, NULL, NULL, NULL, 1, '2023-12-18 01:41:32', '2023-12-18 08:41:32', NULL, '6562102a33af3.png', NULL);
+(0, 'yayuk', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'yayuk@unpkediri.ac.id', 'Yayuk', '2023-10-12', 'Female', 'Nglaban 1111', '081216318022', 2, '2024-01-01 14:53:36', '2024-01-01 21:53:36', NULL, '653e5a409b4fb.jpeg', NULL),
+(137648118, 'admin', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'admin@yayuk.com', 'Administrator', '0000-00-00', 'Male', '', '', 1, '2024-01-01 14:52:14', '2023-12-18 08:41:32', NULL, '6562102a33af3.png', NULL);
 
 --
 -- Indexes for dumped tables
@@ -663,13 +671,13 @@ ALTER TABLE `IngredientStocks`
 -- AUTO_INCREMENT for table `IngredientTransactions`
 --
 ALTER TABLE `IngredientTransactions`
-  MODIFY `TransactionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=301;
+  MODIFY `TransactionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=303;
 
 --
 -- AUTO_INCREMENT for table `LogActivities`
 --
 ALTER TABLE `LogActivities`
-  MODIFY `LogID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `LogID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT for table `ProductIngredients`
