@@ -49,18 +49,6 @@
             ';
         }
         ?>
-        <?php
-        if ($_SESSION['RoleID'] === 1) {
-            // Menu "Users" hanya ditampilkan jika peran pengguna adalah "Admin"
-            echo '
-        <li class="px-6 py-4 hover-bg-gray-700 cursor-pointer space-x-2 flex items-center">
-            <i class="fas fa-cog mr-3"></i>
-            <a href="../systems/settingsList.php">Settings</a>
-        </li>
-        ';
-        }
-        ?>
-
     </ul>
     <hr class="mt-60 border-transparent">
 </aside>
