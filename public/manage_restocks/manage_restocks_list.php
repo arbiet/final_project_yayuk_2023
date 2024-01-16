@@ -61,7 +61,7 @@ $errors = array();
                     FROM IngredientStocks IngStk
                     INNER JOIN Ingredients I ON IngStk.IngredientID = I.IngredientID
                     WHERE I.IngredientName LIKE '%$searchTerm%'
-                    LIMIT 15 OFFSET " . ($page - 1) * 15;
+                    LIMIT 6 OFFSET " . ($page - 1) * 6;
                     $result = $conn->query($query);
 
                     // Count total rows in the table
@@ -71,7 +71,7 @@ $errors = array();
                     WHERE I.IngredientName LIKE '%$searchTerm%'";
                     $resultCount = $conn->query($queryCount);
                     $rowCount = $resultCount->fetch_assoc()['count'];
-                    $totalPage = ceil($rowCount / 15);
+                    $totalPage = ceil($rowCount / 6);
                     $no = 1;
 
                     while ($row = $result->fetch_assoc()) {
@@ -141,114 +141,78 @@ $errors = array();
                         $currentYear = date('Y'); // Get the current year
                         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $currentMonth, $currentYear);
 
-                    // Check if today requires restocking considering Safety Stock
-                    if ($stock < ($eoq + $safetyStock)) {
-                        $restockStatus = 'Restock Required';
-                        $restockColor = 'text-red-500';
-                    } else {
-                        $restockStatus = 'No Restock Needed';
-                        $restockColor = 'text-green-500';
-                    }
-                    ?>
-                        <!-- Displaying each ingredient information -->
-                        <div class="flex items-start flex-col justify-between border-b border-gray-300 py-2">
-                            <!-- Ingredient Name -->
-                            <div class="text-3xl font-semibold">
-                                <?php echo $row['IngredientName']; ?>
-                            </div>
-                            <div class="flex flex-row flex-wrap space-x-2">
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-id-card-alt"></i><?php echo $row['IngredientID']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-dollar-sign"></i><?php echo $row['PurchasePrice']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-box"></i><?php echo $row['QuantityPerPurchase']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-utensils"></i><?php echo $row['ServingsPerIngredient']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-file-invoice-dollar"></i><?php echo $row['HoldingCost']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-coins"></i><?php echo $row['HoldingCostPrice']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-clock"></i><?php echo $row['ShelfLife']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-industry"></i><?php echo $row['SupplierName']; ?>
-                                </div>
+                        $daysBetweenRestocks = ($restocksPerMonth > 0) ? round($daysInMonth / $restocksPerMonth) : 0;
 
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-sort-numeric-up"></i><?php echo $row['MinimumStock']; ?>
+                        // Check if today requires restocking considering Safety Stock
+                        if ($stock < ($eoq + $safetyStock)) {
+                            $restockStatus = 'Restock Required';
+                            $restockColor = 'text-red-500';
+                        } else {
+                            $restockStatus = 'No Restock Needed';
+                            $restockColor = 'text-green-500';
+                        }
+                        ?>
+                            <!-- Displaying each ingredient information -->
+                            <div class="flex items-start flex-col justify-between border-b border-gray-300 py-2">
+                                <!-- Ingredient Name -->
+                                <div class="text-3xl font-semibold">
+                                    <?php echo $row['IngredientName']; ?>
                                 </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-map-marker-alt"></i><?php echo $row['StorageLocation']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-cube"></i><?php echo $row['PurchaseUnit']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-chart-line"></i><?php echo $row['UsagePerDay']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-chart-bar"></i><?php echo $row['UsagePerMonth']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-file-invoice-dollar"></i><?php echo $row['OrderCost']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-percent"></i><?php echo $row['HoldingCostPercentage']; ?>
-                                </div>
+                                <!-- <div class="container mx-auto"> -->
+                                    <table class="min-w-full border border-gray-300 mt-4">
+                                        <tr>
+                                            <td colspan="2" class="py-1 px-2 bg-gray-200 text-xl font-semibold">EOQ - Economy Order Quantity</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 px-2"><i class="mr-2 fas fa-sort-numeric-up"></i>EOQ:</td>
+                                            <td class="py-1 px-2"><?php echo number_format($eoq, 2); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 px-2"><i class="mr-2 fas fa-sort-numeric-down"></i>Safety Stock:</td>
+                                            <td class="py-1 px-2"><?php echo number_format($safetyStock, 2); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 px-2"><i class="mr-2 fas fa-sort-numeric-down"></i>Reorder Point:</td>
+                                            <td class="py-1 px-2"><?php echo number_format($restockQuantity, 2), " ", $row['PurchaseUnit']; ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 px-2"><i class="mr-2 fas fa-calendar-day"></i>Restocks Per Month:</td>
+                                            <td class="py-1 px-2"><?php echo $restocksPerMonth; ?> Times</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 px-2"><i class="mr-2 fas fa-clock"></i>Days Between Restocks:</td>
+                                            <td class="py-1 px-2"><?php echo $daysBetweenRestocks; ?> days</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 px-2" colspan="2"><i class="mr-2 fas fa-info-circle"></i>Components:</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 px-2"><i class="mr-2 fas fa-sort-numeric-up"></i>Stock:</td>
+                                            <td class="py-1 px-2"><?php echo number_format($row['Stock'], 2), " kg"; ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 px-2"><i class="mr-2 fas fa-sort-numeric-down"></i>Demand:</td>
+                                            <td class="py-1 px-2"><?php echo number_format($demand, 2), " ", $row['PurchaseUnit'], " / month"; ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 px-2"><i class="mr-2 fas fa-calendar-day"></i>Order Cost:</td>
+                                            <td class="py-1 px-2">Rp <?php echo number_format($orderCost, 2); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 px-2"><i class="mr-2 fas fa-clock"></i>Holding Cost Percentage:</td>
+                                            <td class="py-1 px-2"><?php echo $holdingCostPercentage; ?>%</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 px-2"><i class="mr-2 fas fa-info-circle"></i>Purchase Price:</td>
+                                            <td class="py-1 px-2">Rp <?php echo number_format($purchasePrice, 2); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 px-2 <?php echo $restockColor; ?>" colspan="2"><i class="mr-2 fas fa-info-circle"></i>Restock Status: <?php echo $restockStatus; ?></td>
+                                        </tr>
+                                    </table>
+                                <!-- <div> -->
                             </div>
-                            <div class="text-gray-600">
-                                <i class="mr-2 fas fa-info-circle"></i><?php echo $row['Description']; ?>
-                            </div>
-                            <div class="text-gray-600">
-                                <div class="text-xl font-semibold">EOQ - Economy Order Quantity</div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-sort-numeric-up"></i>EOQ: <?php echo number_format($eoq, 2); ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-sort-numeric-down"></i>Safety Stock: <?php echo number_format($safetyStock, 2); ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-sort-numeric-down"></i>Reorder Point: <?php echo number_format($restockQuantity, 2), " ",  $row['PurchaseUnit']; ?>
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-calendar-day"></i>Restocks Per Month: <?php echo $restocksPerMonth; ?> Times
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-clock"></i>Days Between Restocks: <?php echo $daysBetweenRestocks; ?> days
-                                </div>
-                                <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-info-circle"></i>Components:
-                                    <ul>
-                                        <li>Stock: <?php echo number_format($row['Stock'], 2), " kg"; ?></li>
-                                        <li>Demand: <?php echo number_format($demand, 2), " ", $row['PurchaseUnit'], " / month"; ?></li>
-                                        <li>Order Cost: Rp <?php echo number_format($orderCost, 2); ?></li>
-                                        <li>Holding Cost Percentage: <?php echo $holdingCostPercentage; ?>%</li>
-                                        <li>Purchase Price: Rp <?php echo number_format($purchasePrice, 2); ?></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="text-gray-600 <?php echo $restockColor; ?>">
-                                <i class="mr-2 fas fa-info-circle"></i>Restock Status: <?php echo $restockStatus; ?>
-                            </div>
-                            <!-- Action: View Transactions -->
-                            <div class="flex-shrink-0 mt-2">
-                                <!-- <a href="<?php // echo $baseUrl; 
-                                                ?>public/view_transactions.php?stock_id=<?php //echo $row['StockID']; 
-                                                                                        ?>" class="text-xs bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
-                                    <i class="fas fa-eye mr-2"></i>
-                                    <span>Transactions</span>
-                                </a> -->
-                            </div>
-                        </div>
-                    <?php
+                        <?php
                     }
 
                     // Check if no data found
