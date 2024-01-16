@@ -134,8 +134,6 @@ $errors = array();
                     // Check if today requires restocking
                     $currentDay = date('j'); // Get the current day of the month (1-31)
 
-                    
-
                     // Check if today requires restocking considering Safety Stock
                     if ($stock < ($eoq + $safetyStock)) {
                         $restockStatus = 'Restock Required';
