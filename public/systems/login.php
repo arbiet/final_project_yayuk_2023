@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (
                 isset($_SESSION['UserID']) && $_SESSION['RoleID'] == 2
             ) {
-                $dashboardPage = 'dashboard_manager.php';
+                $dashboardPage = 'dashboard.php';
             }
             // Redirect the user to the appropriate dashboard
             echo '<script>

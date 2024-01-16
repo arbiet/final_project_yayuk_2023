@@ -53,86 +53,93 @@ $errors = array();
                         <!-- End Search -->
                     </div>
                     <!-- End Navigation -->
-                <?php
-                // Fetch ingredient stock data from the database
-                $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
-                $page = isset($_GET['page']) ? $_GET['page'] : 1;
-                $query = "SELECT IngStk.StockID, IngStk.IngredientID, IngStk.Quantity AS Stock, IngStk.LastUpdateStock, I.*
+                    <?php
+                    // Fetch ingredient stock data from the database
+                    $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
+                    $page = isset($_GET['page']) ? $_GET['page'] : 1;
+                    $query = "SELECT IngStk.StockID, IngStk.IngredientID, IngStk.Quantity AS Stock, IngStk.LastUpdateStock, I.*
                     FROM IngredientStocks IngStk
                     INNER JOIN Ingredients I ON IngStk.IngredientID = I.IngredientID
                     WHERE I.IngredientName LIKE '%$searchTerm%'
                     LIMIT 15 OFFSET " . ($page - 1) * 15;
-                $result = $conn->query($query);
+                    $result = $conn->query($query);
 
-                // Count total rows in the table
-                $queryCount = "SELECT COUNT(*) AS count
+                    // Count total rows in the table
+                    $queryCount = "SELECT COUNT(*) AS count
                     FROM IngredientStocks IngStk
                     INNER JOIN Ingredients I ON IngStk.IngredientID = I.IngredientID
                     WHERE I.IngredientName LIKE '%$searchTerm%'";
-                $resultCount = $conn->query($queryCount);
-                $rowCount = $resultCount->fetch_assoc()['count'];
-                $totalPage = ceil($rowCount / 15);
-                $no = 1;
+                    $resultCount = $conn->query($queryCount);
+                    $rowCount = $resultCount->fetch_assoc()['count'];
+                    $totalPage = ceil($rowCount / 15);
+                    $no = 1;
 
-                while ($row = $result->fetch_assoc()) {
-                    // EOQ calculation
-                    $demand = $row['UsagePerMonth'];
-                    $orderCost = $row['OrderCost'];
-                    $purchasePrice = $row['PurchasePrice'];
-                    $holdingCostPercentage = $row['HoldingCostPercentage'] ;
-                    $stock = $row['Stock'] ;
+                    while ($row = $result->fetch_assoc()) {
+                        // EOQ calculation
+                        $demand = $row['UsagePerMonth'];
+                        $orderCost = $row['OrderCost'];
+                        $purchasePrice = $row['PurchasePrice'];
+                        $holdingCostPercentage = $row['HoldingCostPercentage'];
+                        $stock = $row['Stock'];
 
-                    $eoq = sqrt((2 * $demand * $orderCost) / ((($purchasePrice / 100) * $holdingCostPercentage)));
+                        $eoq = sqrt((2 * $demand * $orderCost) / ((($purchasePrice / 100) * $holdingCostPercentage)));
 
-                    // Calculate historical demand from IngredientTransactions table
-                    $ingredientID = $row['IngredientID'];
-                    $historicalDemandQuery = "SELECT Quantity, MONTH(Timestamp) as Month FROM IngredientTransactions WHERE IngredientID = $ingredientID AND TransactionType = 'Out'";
-                    $historicalDemandResult = $conn->query($historicalDemandQuery);
+                        // Calculate historical demand from IngredientTransactions table
+                        $ingredientID = $row['IngredientID'];
+                        $historicalDemandQuery = "SELECT Quantity, MONTH(Timestamp) as Month FROM IngredientTransactions WHERE IngredientID = $ingredientID AND TransactionType = 'Out'";
+                        $historicalDemandResult = $conn->query($historicalDemandQuery);
 
-                    $historicalDemand = array();
-                    $monthlyDemand = array_fill(1, 12, 0); // Initialize an array to store monthly demand, assuming 12 months
+                        $historicalDemand = array();
+                        $monthlyDemand = array_fill(1, 12, 0); // Initialize an array to store monthly demand, assuming 12 months
 
-                    while ($demandRow = $historicalDemandResult->fetch_assoc()) {
-                        $historicalDemand[] = $demandRow['Quantity'];
-                        $month = $demandRow['Month'];
-                        $monthlyDemand[$month] += $demandRow['Quantity'];
-                    }
-                    
-                    print_r($historicalDemand);
+                        while ($demandRow = $historicalDemandResult->fetch_assoc()) {
+                            $historicalDemand[] = $demandRow['Quantity'];
+                            $month = $demandRow['Month'];
+                            $monthlyDemand[$month] += $demandRow['Quantity'];
+                        }
 
-                    // Calculate mean demand
-                    $demandMean = ($historicalDemand) ? array_sum($historicalDemand) / count($historicalDemand) : 0;
+                        // print_r($historicalDemand);
 
-                    // Calculate standard deviation of demand
-                    $standardDeviation = ($historicalDemand) ? sqrt(array_sum(array_map(function ($demand) use ($demandMean) {
-                        return pow($demand - $demandMean, 2);
-                    }, $historicalDemand)) / count($historicalDemand)) : 0;
+                        // Calculate mean demand
+                        $demandMean = ($historicalDemand) ? array_sum($historicalDemand) / count($historicalDemand) : 0;
 
-                    // Safety Stock calculation
-                    $safetyFactor = 1.645; // You can adjust this based on your desired confidence level
-                    $safetyStock = $safetyFactor * $standardDeviation;
+                        // Calculate standard deviation of demand
+                        $standardDeviation = ($historicalDemand) ? sqrt(array_sum(array_map(function ($demand) use ($demandMean) {
+                            return pow($demand - $demandMean, 2);
+                        }, $historicalDemand)) / count($historicalDemand)) : 0;
+                        // echo $demandMean;
+                        // echo "<br/>";
+                        // echo $standardDeviation;
 
-                    if ($safetyStock == 0) {
-                        $safetyStock = 0.01;
-                    }
+                        // Safety Stock calculation
+                        $safetyFactor = 1.645; // You can adjust this based on your desired confidence level
+                        $safetyStock = $safetyFactor * $standardDeviation;
 
-                    // Calculate restock information
-                    $restockQuantity = $eoq + $safetyStock; // You can modify this based on your specific logic
+                        if ($safetyStock == 0) {
+                            $safetyStock = 0.01;
+                        }
+
+                        // Reorder Point calculation
+                        $leadTimeDemand = $monthlyDemand[date('n')];
+                        $reorderPoint = $leadTimeDemand + $safetyStock;
+                        // echo $leadTimeDemand;
+                        // echo "<br/>";
+                        // echo $reorderPoint;
+                        $eoq = sqrt((2 * $reorderPoint * $orderCost) / ((($purchasePrice / 100) * $holdingCostPercentage)));
 
 
-                    // Calculate restocksPerMonth based on demand and EOQ
-                    $demand = $row['UsagePerMonth']; // You might want to move this line inside the while loop
-                    $restocksPerMonth = ($demand > 0) ? ceil($demand / $restockQuantity) : 0;
+                        // Calculate restock information
+                        $restockQuantity = $eoq + $safetyStock; // You can modify this based on your specific logic
 
-                    // Calculate the days in the current month
-                    $currentMonth = date('n'); // Get the current month (1-12)
-                    $currentYear = date('Y'); // Get the current year
-                    $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $currentMonth, $currentYear);
 
-                    $daysBetweenRestocks = ($restocksPerMonth > 0) ? round($daysInMonth / $restocksPerMonth) : 0;
+                        // Calculate restocksPerMonth based on demand and EOQ
+                        $demand = $row['UsagePerMonth']; // You might want to move this line inside the while loop
+                        $restocksPerMonth = ($demand > 0) ? ceil($demand / $restockQuantity) : 0;
 
-                    // Check if today requires restocking
-                    $currentDay = date('j'); // Get the current day of the month (1-31)
+                        // Calculate the days in the current month
+                        $currentMonth = date('n'); // Get the current month (1-12)
+                        $currentYear = date('Y'); // Get the current year
+                        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $currentMonth, $currentYear);
 
                     // Check if today requires restocking considering Safety Stock
                     if ($stock < ($eoq + $safetyStock)) {
@@ -174,7 +181,7 @@ $errors = array();
                                 <div class="text-gray-600">
                                     <i class="mr-2 fas fa-industry"></i><?php echo $row['SupplierName']; ?>
                                 </div>
-                                
+
                                 <div class="text-gray-600">
                                     <i class="mr-2 fas fa-sort-numeric-up"></i><?php echo $row['MinimumStock']; ?>
                                 </div>
@@ -209,7 +216,7 @@ $errors = array();
                                     <i class="mr-2 fas fa-sort-numeric-down"></i>Safety Stock: <?php echo number_format($safetyStock, 2); ?>
                                 </div>
                                 <div class="text-gray-600">
-                                    <i class="mr-2 fas fa-sort-numeric-down"></i>Reorder Point: <?php echo number_format($restockQuantity, 2), " " ,  $row['PurchaseUnit']; ?> 
+                                    <i class="mr-2 fas fa-sort-numeric-down"></i>Reorder Point: <?php echo number_format($restockQuantity, 2), " ",  $row['PurchaseUnit']; ?>
                                 </div>
                                 <div class="text-gray-600">
                                     <i class="mr-2 fas fa-calendar-day"></i>Restocks Per Month: <?php echo $restocksPerMonth; ?> Times
@@ -221,7 +228,7 @@ $errors = array();
                                     <i class="mr-2 fas fa-info-circle"></i>Components:
                                     <ul>
                                         <li>Stock: <?php echo number_format($row['Stock'], 2), " kg"; ?></li>
-                                        <li>Demand: <?php echo number_format($demand, 2), " " ,$row['PurchaseUnit'] , " / month"; ?></li>
+                                        <li>Demand: <?php echo number_format($demand, 2), " ", $row['PurchaseUnit'], " / month"; ?></li>
                                         <li>Order Cost: Rp <?php echo number_format($orderCost, 2); ?></li>
                                         <li>Holding Cost Percentage: <?php echo $holdingCostPercentage; ?>%</li>
                                         <li>Purchase Price: Rp <?php echo number_format($purchasePrice, 2); ?></li>
@@ -233,15 +240,17 @@ $errors = array();
                             </div>
                             <!-- Action: View Transactions -->
                             <div class="flex-shrink-0 mt-2">
-                                <a href="<?php echo $baseUrl; ?>public/view_transactions.php?stock_id=<?php echo $row['StockID']; ?>" class="text-xs bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                                <!-- <a href="<?php // echo $baseUrl; 
+                                                ?>public/view_transactions.php?stock_id=<?php //echo $row['StockID']; 
+                                                                                        ?>" class="text-xs bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                                     <i class="fas fa-eye mr-2"></i>
                                     <span>Transactions</span>
-                                </a>
+                                </a> -->
                             </div>
                         </div>
                     <?php
                     }
-                    
+
                     // Check if no data found
                     if ($result->num_rows === 0) {
                     ?>
